@@ -1,17 +1,32 @@
-
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const logger = require('../config/logger');
 
-exports.findUserByPhone = async (phone) => {
-    return await User.findOne({ phone });
+const findUserByPhone = async (phone) => {
+    try {
+        return await User.findOne({ phone });
+    } catch (error) {
+        logger.error(`Error finding user by phone: ${error.message}`);
+        throw error;
+    }
 };
 
-exports.createUser = async (userData) => {
-    const user = new User(userData);
-    return await user.save();
+const createUser = async (userData) => {
+    try {
+        const user = new User(userData);
+        return await user.save();
+    } catch (error) {
+        logger.error(`Error creating user: ${error.message}`);
+        throw error;
+    }
 };
 
-exports.generateToken = (userId) => {
+const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
-    
+
+module.exports = {
+    findUserByPhone,
+    createUser,
+    generateToken
+};

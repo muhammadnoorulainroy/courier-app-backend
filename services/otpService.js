@@ -1,29 +1,30 @@
+const twilio = require('twilio');
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-// const twilio = require('twilio');
-// const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const otpStore = {};
 
-// // OTP store (simple in-memory object, for demo purposes; consider Redis for production)
-// const otpStore = {};
+const sendOtp = async (phone) => {
+    const otp = Math.floor(1000 + Math.random() * 9000).toString(); // Generate a 4-digit OTP
+    otpStore[phone] = otp;
 
-// exports.sendOtp = async (phone) => {
-//     const otp = Math.floor(100000 + Math.random() * 900000).toString();  // 6-digit OTP
-//     otpStore[phone] = otp;
+    await client.messages.create({
+        body: `Your OTP is: ${otp}`,
+        from: process.env.TWILIO_WHATSAPP_NUMBER,
+        to: `whatsapp:${phone}`,
+    });
 
-//     // Send OTP via WhatsApp
-//     await client.messages.create({
-//         body: `Your OTP is: ${otp}`,
-//         from: process.env.TWILIO_WHATSAPP_NUMBER,
-//         to: `whatsapp:${phone}`,
-//     });
+    return { message: 'OTP sent successfully' };
+};
 
-//     return { message: 'OTP sent successfully' };
-// };
+const verifyOtp = (phone, otp) => {
+    if (otpStore[phone] && otpStore[phone] === otp) {
+        delete otpStore[phone];
+        return true;
+    }
+    return false;
+};
 
-// exports.verifyOtp = (phone, otp) => {
-//     if (otpStore[phone] && otpStore[phone] === otp) {
-//         delete otpStore[phone];  // Clear OTP after successful verification
-//         return true;
-//     }
-//     return false;
-// };
-    
+module.exports = {
+    sendOtp,
+    verifyOtp
+};
