@@ -1,6 +1,6 @@
 # courier-app-backend
 
-Here's a `README.md` file for your project, explaining its purpose, setup instructions, and usage. It also includes details on the structure, endpoints, and validation rules.
+Here's a `README.md` file for the Courier App, explaining its purpose, setup instructions, and usage. It also includes details on the structure, endpoints, and validation rules.
 
 ---
 
