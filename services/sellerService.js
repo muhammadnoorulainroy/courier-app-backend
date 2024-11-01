@@ -1,15 +1,13 @@
-const Seller = require('../models/sellerModel');
+const Seller = require("../models/sellerModel");
 
-const findSellerByPhone = async (phone) => {
-    return await Seller.findOne({ phone });
+const savePersonalInfo = async (personalInfo) => {
+  return await Seller.updateOne({ phone: personalInfo.phone }, personalInfo, {
+    upsert: true,
+  });
 };
 
-const createSeller = async (sellerData) => {
-    const seller = new Seller(sellerData);
-    return await seller.save();
+const findUserByPhone = async (phone) => {
+  return await Seller.findOne({ phone });
 };
 
-module.exports = {
-    findSellerByPhone,
-    createSeller
-};
+module.exports = { savePersonalInfo, findUserByPhone };
