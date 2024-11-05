@@ -5,6 +5,7 @@ const client = twilio(
 );
 const Courier = require("../models/courierModel");
 const Seller = require("../models/sellerModel");
+const Wallet = require("../models/walletModel");
 
 const generateOtp = () => Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -20,6 +21,7 @@ const sendOtp = async (phone, otp) => {
 const getModel = (userType) => {
   if (userType === "courier") return Courier;
   if (userType === "seller") return Seller;
+  if (userType === "wallet") return Wallet;
   throw new Error("Invalid user type");
 };
 

@@ -20,6 +20,10 @@ router.post(
 router.get("/:shipmentId/summary", shipmentController.getShipmentSummary);
 
 router.get("/:shipmentId/details", shipmentController.getShipment);
-
+router.get("/pending", shipmentController.getPendingShipments);
+router.get("/scheduled/:phone", shipmentController.getScheduledShipments);
+router.get("/history/:phone", shipmentController.getDeliveredShipments);
+router.patch("/update-tracking-status/:trackingId", shipmentController.updateTrackingStatus);
+router.patch("/assign/:trackingId", shipmentController.assignShipmentToCourier);
 
 module.exports = router;
