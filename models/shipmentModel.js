@@ -14,21 +14,25 @@ const addressSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const trackingStatusSchema = new mongoose.Schema(
+  {
+    status: { type: String, required: true }, // e.g., "Created", "Picked Up", "In Transit", "Delivered"
+    location: { type: String },
+    timestamp: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
 const shipmentSchema = new mongoose.Schema(
   {
-    // userId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "User",
-    //   required: true,
-    // },
     shipmentId: {
-        type: String,
-        unique: true,
-        default: () => uuidv4() // Generates a unique ID for each shipment
+      type: String,
+      unique: true,
+      default: () => uuidv4(),
     },
     trackingId: {
-        type: String,
-        unique: true
+      type: String,
+      unique: true,
     },
     type: { type: String, enum: ["Piece", "Bulk"], required: true },
     weight: { type: Number, required: true },
@@ -68,15 +72,19 @@ const shipmentSchema = new mongoose.Schema(
       taxes: Number,
     },
     status: { type: String, default: "Created" },
+    courierPhone: { type: String, default: null },
+    trackingStatus: [trackingStatusSchema],
   },
   { timestamps: true }
 );
 
-shipmentSchema.pre('save', function (next) {
-    if (!this.trackingId) {
-        this.trackingId = `TRK-${Math.floor(Math.random() * 1000000000)}`;
-    }
-    next();
+shipmentSchema.pre("save", function (next) {
+  if (!this.trackingId) {
+    const uuid = uuidv4().replace(/-/g, '');
+    const numericId = parseInt(uuid, 16).toString().slice(0, 12);
+    this.trackingId = `TRK-${numericId}`;
+  }
+  next();
 });
 
 module.exports = mongoose.model("Shipment", shipmentSchema);
