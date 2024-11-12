@@ -7,6 +7,7 @@ const {
   verifyOtpSchema,
   withdrawRequestSchema,
 } = require("../validators/walletValidator");
+const upload = require("../middlewares/upload")
 
 router.post(
   "/request-otp",
@@ -25,6 +26,13 @@ router.post(
   validateRequest(withdrawRequestSchema),
   walletController.withdrawAmount
 );
+
+router.post(
+  "/pay-debt",
+  upload.single("receipt"),
+  walletController.payDebt
+);
+
 
 router.get("/pending-transactions", walletController.getPendingTransactions);
 

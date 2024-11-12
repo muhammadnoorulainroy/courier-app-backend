@@ -60,9 +60,24 @@ const getPendingTransactions = async (req, res) => {
   }
 };
 
+const payDebt = async (req, res) => {
+  try {
+    const { phone, amount } = req.body;
+    const receiptPath = req.file ? req.file.path : null;
+
+    const transaction = await walletService.payDebt(phone, amount, receiptPath);
+    logger.info(`Debt payment initiated by ${phone}`);
+    res.status(201).json({ message: "Debt payment initiated", transaction });
+  } catch (error) {
+    logger.error(`Error processing debt payment for ${req.body.phone}: ${error.message}`);
+    res.status(500).json({ message: "Error processing debt payment" });
+  }
+};
+
 module.exports = {
   requestOtp,
   verifyOtp,
   withdrawAmount,
   getPendingTransactions,
+  payDebt
 };

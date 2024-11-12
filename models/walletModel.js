@@ -26,7 +26,7 @@ const walletSchema = new mongoose.Schema({
       },
       type: {
         type: String,
-        enum: ["withdrawal", "deposit"],
+        enum: ["withdrawal", "deposit", "debt", "debit"],
       },
       status: {
         type: String,
@@ -40,6 +40,7 @@ const walletSchema = new mongoose.Schema({
         iban: String,
         accountOwnerName: String,
       },
+      receipt: String, 
     },
   ],
 });
