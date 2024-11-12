@@ -67,8 +67,19 @@ const withdrawRequestSchema = Joi.object({
   })
 });
 
+const phoneSchema = Joi.object({
+  phone: Joi.string()
+    .pattern(/^[+][1-9][0-9]{9,14}$/)
+    .required()
+    .messages({
+      "string.pattern.base": "Phone number must start with + and contain 10-15 digits.",
+    }),
+});
+
+
 module.exports = {
   requestOtpSchema,
   verifyOtpSchema,
   withdrawRequestSchema,
+  phoneSchema
 };

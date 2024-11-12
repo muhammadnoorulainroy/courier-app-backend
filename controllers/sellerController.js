@@ -56,8 +56,69 @@ const signUp = async (req, res) => {
   }
 };
 
+// View all sellers
+const viewSellers = async (req, res) => {
+  try {
+    const sellers = await sellerService.getAllSellers();
+    logger.info("Retrieved all sellers successfully");
+    res.json({ sellers });
+  } catch (error) {
+    logger.error(`Error retrieving sellers: ${error.message}`);
+    res.status(500).json({ message: "Error retrieving sellers" });
+  }
+};
+
+// Edit seller
+const editSeller = async (req, res) => {
+  const { sellerId } = req.params;
+  const { phone, financialPhone, firstName, lastName, businessName, isActive } = req.body;
+
+  try {
+    const updatedSeller = await sellerService.updateSeller(sellerId, {
+      phone,
+      financialPhone,
+      firstName,
+      lastName,
+      businessName,
+      isActive,
+    });
+
+    if (!updatedSeller) {
+      logger.error(`Seller with ID ${sellerId} not found.`);
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    logger.info(`Seller with ID ${sellerId} updated successfully.`);
+    res.json({ message: "Seller updated successfully", seller: updatedSeller });
+  } catch (error) {
+    logger.error(`Error updating seller: ${error.message}`);
+    res.status(500).json({ message: "Error updating seller" });
+  }
+};
+
+// Delete seller
+const deleteSeller = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await sellerService.removeSeller(id);
+    if (!result) {
+      logger.warn(`Seller with ID ${id} not found`);
+      return res.status(404).json({ message: "Seller not found" });
+    }
+    logger.info(`Deleted seller with ID ${id} successfully`);
+    res.json({ message: "Seller deleted successfully" });
+  } catch (error) {
+    logger.error(`Error deleting seller with ID ${id}: ${error.message}`);
+    res.status(500).json({ message: "Error deleting seller" });
+  }
+};
+
 module.exports = {
   requestOtp,
   verifyOtp,
   signUp,
+  viewSellers,
+  editSeller,
+  deleteSeller,
 };

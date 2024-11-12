@@ -48,4 +48,27 @@ const personalInfoSchema = Joi.object({
   }),
 });
 
-module.exports = { requestOtpSchema, verifyOtpSchema, personalInfoSchema };
+const editSellerSchema = Joi.object({
+  firstName: Joi.string()
+    .min(2)
+    .max(50)
+    .pattern(/^[A-Za-z\s]+$/),
+  lastName: Joi.string()
+    .min(2)
+    .max(50)
+    .pattern(/^[A-Za-z\s]+$/),
+  phone: Joi.string().pattern(/^[+][1-9][0-9]{9,14}$/),
+  financialPhone: Joi.string().pattern(/^[+][1-9][0-9]{9,14}$/),
+  businessName: Joi.string()
+    .min(2)
+    .max(100)
+    .pattern(/^[A-Za-z0-9\s'-.]+$/),
+  isActive: Joi.boolean()
+});
+
+module.exports = {
+  requestOtpSchema,
+  verifyOtpSchema,
+  personalInfoSchema,
+  editSellerSchema,
+};

@@ -85,4 +85,9 @@ router.put(
   courierController.updateDropoffSchedule
 );
 
+router.post("/", courierController.addCourier);
+router.get("/", courierController.viewAllCouriers);
+router.put("/:id", courierController.editCourier);
+router.delete("/:id", courierController.deleteCourier);
+
 module.exports = router;

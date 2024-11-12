@@ -10,6 +10,14 @@ const sellerSchema = new mongoose.Schema({
       "Phone number must start with + and contain 10-15 digits.",
     ],
   },
+  financialPhone: {
+    type: String,
+    required: [true, "Financial phone number is required"],
+    match: [
+      /^[+][1-9][0-9]{9,14}$/,
+      "Financial phone number must start with + and contain 10-15 digits.",
+    ],
+  },
   otp: { type: String },
   otpExpiry: { type: Date },
   otpPurpose: { type: String },
@@ -39,7 +47,7 @@ const sellerSchema = new mongoose.Schema({
       "Business name can only contain letters, numbers, spaces, and limited special characters (' - .)",
     ],
   },
-
+  isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });
 

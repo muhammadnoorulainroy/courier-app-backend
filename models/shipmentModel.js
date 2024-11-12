@@ -10,6 +10,8 @@ const addressSchema = new mongoose.Schema(
     apartmentNumber: String,
     closestLandmark: String,
     locationLink: String,
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true }
   },
   { _id: false }
 );
@@ -33,6 +35,14 @@ const shipmentSchema = new mongoose.Schema(
     trackingId: {
       type: String,
       unique: true,
+    },
+    senderPhone: {
+      type: String,
+      required: true,
+      match: [
+        /^[+][1-9][0-9]{9,14}$/,
+        "Phone number must be in international format.",
+      ],
     },
     type: { type: String, enum: ["Piece", "Bulk"], required: true },
     weight: { type: Number, required: true },

@@ -1,37 +1,40 @@
 const mongoose = require("mongoose");
 
-const scheduleSchema = new mongoose.Schema({
-  governorate: { type: String, required: true },
-  days: {
-    type: [String],
-    required: true,
-    enum: [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ],
+const scheduleSchema = new mongoose.Schema(
+  {
+    governorate: { type: String, required: true },
+    days: {
+      type: [String],
+      required: true,
+      enum: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+    },
+    startHour: {
+      type: String,
+      match: [
+        /^([01]\d|2[0-3]):([0-5]\d)$/,
+        "Start hour must be in HH:mm format",
+      ],
+      required: true,
+    },
+    finishHour: {
+      type: String,
+      match: [
+        /^([01]\d|2[0-3]):([0-5]\d)$/,
+        "Finish hour must be in HH:mm format",
+      ],
+      required: true,
+    },
   },
-  startHour: {
-    type: String,
-    match: [
-      /^([01]\d|2[0-3]):([0-5]\d)$/,
-      "Start hour must be in HH:mm format",
-    ],
-    required: true,
-  },
-  finishHour: {
-    type: String,
-    match: [
-      /^([01]\d|2[0-3]):([0-5]\d)$/,
-      "Finish hour must be in HH:mm format",
-    ],
-    required: true,
-  },
-});
+  { _id: false }
+);
 
 const courierSchema = new mongoose.Schema({
   phone: {
@@ -62,6 +65,7 @@ const courierSchema = new mongoose.Schema({
     maxlength: [50, "Last name cannot exceed 50 characters"],
     match: [/^[A-Za-z\s]+$/, "Last name can only contain letters and spaces"],
   },
+  isActive: { type: Boolean, default: true },
   idNumber: {
     type: String,
     required: [true, "ID number is required"],

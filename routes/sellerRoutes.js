@@ -6,6 +6,7 @@ const {
   requestOtpSchema,
   verifyOtpSchema,
   personalInfoSchema,
+  editSellerSchema,
 } = require("../validators/sellerValidator");
 
 router.post(
@@ -23,5 +24,11 @@ router.post(
   validateRequest(verifyOtpSchema),
   sellerController.verifyOtp
 );
+
+router.get("/", sellerController.viewSellers);
+
+router.put("/:sellerId", validateRequest(editSellerSchema), sellerController.editSeller);
+
+router.delete("/:id", sellerController.deleteSeller);
 
 module.exports = router;
