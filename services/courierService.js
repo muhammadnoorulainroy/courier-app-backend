@@ -1,4 +1,5 @@
 const Courier = require("../models/courierModel");
+const Shipment = require("../models/shipmentModel")
 
 const savePersonalInfo = async (personalInfo) => {
   return await Courier.updateOne({ phone: personalInfo.phone }, personalInfo, {
@@ -49,6 +50,49 @@ const updateDropoffSchedule = async (phone, dropoffSchedule) => {
   );
 };
 
+const getAllCouriers = async () => {
+  const couriers = await Courier.find();
+
+  const couriersWithStats = await Promise.all(
+    couriers.map(async (courier) => {
+      const stats = await Shipment.aggregate([
+        { $match: { courierPhone: courier.phone } },
+        {
+          $group: {
+            _id: "$status",
+            totalValue: { $sum: "$summary.totalCost" },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      let totalPaid = 0;
+      let shipments = 0;
+      let returned = 0;
+      let cancelled = 0;
+      let delivered = 0;
+
+      stats.forEach((stat) => {
+        totalPaid += stat.totalValue;
+        if (stat._id === "Delivered") delivered = stat.count;
+        else if (stat._id === "Returned") returned = stat.count;
+        else if (stat._id === "Cancelled") cancelled = stat.count;
+        shipments += stat.count;
+      });
+
+      return {
+        ...courier.toObject(),
+        shipments,
+        returned,
+        cancelled,
+        delivered,
+        totalPaid,
+      };
+    })
+  );
+
+  return couriersWithStats;
+};
 
 
 module.exports = {
@@ -59,5 +103,6 @@ module.exports = {
   updatePhone,
   updatePersonalDetails,
   updatePickupSchedule,
-  updateDropoffSchedule
+  updateDropoffSchedule,
+  getAllCouriers
 };
