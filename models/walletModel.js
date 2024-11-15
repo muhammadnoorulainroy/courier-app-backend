@@ -1,6 +1,24 @@
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
 const walletSchema = new mongoose.Schema({
+  walletId: {
+    type: String,
+    default: uuidv4,
+    unique: true
+  },
+  userId: {
+    type: String,
+    refPath: "userType", // Dynamically references the associated userType
+    required: false, // Optional field, as not all wallets are linked to a specific user
+  },
+  userType: {
+    type: String,
+    enum: ["Seller", "Courier", "Recipient"],
+    required: function () {
+      return this.userId != null;
+    }, // Ensures `userType` is only required if `userId` is provided
+  },
   phone: {
     type: String,
     required: [true, "Phone number is required"],
@@ -40,7 +58,7 @@ const walletSchema = new mongoose.Schema({
         iban: String,
         accountOwnerName: String,
       },
-      receipt: String, 
+      receipt: String,
     },
   ],
 });

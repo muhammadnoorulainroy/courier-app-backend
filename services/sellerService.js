@@ -1,28 +1,25 @@
 const Seller = require("../models/sellerModel");
 const Shipment = require("../models/shipmentModel");
 
+const findSellerById = async (userId) => {
+  return await Seller.findOne({ userId })
+}
 
-const savePersonalInfo = async (personalInfo) => {
-  return await Seller.updateOne({ phone: personalInfo.phone }, personalInfo, {
-    upsert: true,
-  });
+const savePersonalInfo = async (userId, personalInfo) => {
+  await Seller.updateOne({ userId }, personalInfo, { upsert: true });
+
+  return await findSellerById(userId)
 };
 
-const findUserByPhone = async (phone) => {
-  return await Seller.findOne({ phone });
-};
 
 const getAllSellers = async () => {
-  const sellers = await Seller.find().lean(); // Use lean() for plain JavaScript objects
-
-  // Calculate the number of active sellers
+  const sellers = await Seller.find().lean();
   const activeSellerCount = await Seller.countDocuments({ isActive: true });
 
-  // Retrieve shipment stats and total amount paid for each seller
   const sellersWithStats = await Promise.all(
     sellers.map(async (seller) => {
       const stats = await Shipment.aggregate([
-        { $match: { senderPhone: seller.phone } },
+        { $match: { senderId: seller.userId } },
         {
           $group: {
             _id: "$status",
@@ -46,11 +43,6 @@ const getAllSellers = async () => {
         shipments += stat.count;
       });
 
-      // Remove sensitive fields from each seller
-      delete seller.otp;
-      delete seller.otpExpiry;
-      delete seller.otpPurpose;
-
       return {
         ...seller,
         shipments,
@@ -65,17 +57,16 @@ const getAllSellers = async () => {
   return { sellers: sellersWithStats, activeSellerCount };
 };
 
-const updateSeller = async (sellerId, updateData) => {
-  return await Seller.findByIdAndUpdate(sellerId, updateData, { new: true });
+const updateSeller = async (userId, updateData) => {
+  return await Seller.findOneAndUpdate({ userId }, updateData, { new: true });
 };
 
-const removeSeller = async (id) => {
-  return await Seller.findByIdAndDelete(id);
+const removeSeller = async (userId) => {
+  return await Seller.findOneAndDelete({ userId });
 };
 
 module.exports = {
   savePersonalInfo,
-  findUserByPhone,
   getAllSellers,
   updateSeller,
   removeSeller,

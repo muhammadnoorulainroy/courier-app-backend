@@ -1,6 +1,8 @@
+const { v4: uuidv4 } = require("uuid");
+const jwt = require("jsonwebtoken");
+
 const otpService = require("../services/otpService");
 const sellerService = require("../services/sellerService");
-const jwt = require("jsonwebtoken");
 const logger = require("../config/logger");
 
 const requestOtp = async (req, res) => {
@@ -21,11 +23,7 @@ const requestOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
   const { phone, otp } = req.body;
 
-  const { isValid, message, purpose } = await otpService.verifyOtp(
-    phone,
-    otp,
-    "seller"
-  );
+  const { isValid, message, purpose } = await otpService.verifyOtp(phone, otp, "seller");
   if (!isValid) {
     logger.warn(`OTP verification failed for ${phone}: ${message}`);
     return res.status(400).json({ message });
@@ -45,18 +43,18 @@ const verifyOtp = async (req, res) => {
 
 const signUp = async (req, res) => {
   try {
-    await sellerService.savePersonalInfo(req.body);
-    logger.info(`Seller personal information saved for ${req.body.phone}`);
-    res.json({ message: "Personal information saved" });
+    const userId = uuidv4()
+    const seller = await sellerService.savePersonalInfo(userId, req.body);
+    logger.info(`Seller personal information saved for userId: ${userId}`);
+    res.json({ message: "Personal information saved", seller });
   } catch (error) {
     logger.error(
-      `Error saving seller personal information for ${req.body.phone}: ${error.message}`
+      `Error saving seller personal information for userId: ${req.body.userId}: ${error.message}`
     );
-    res.status(500).json({ message: "Error saving personal information" });
+    res.status(500).json({ message: "Error saving personal information", error: error.message });
   }
 };
 
-// View all sellers
 const viewSellers = async (req, res) => {
   try {
     const sellers = await sellerService.getAllSellers();
@@ -68,13 +66,12 @@ const viewSellers = async (req, res) => {
   }
 };
 
-// Edit seller
 const editSeller = async (req, res) => {
-  const { sellerId } = req.params;
+  const { userId } = req.params;
   const { phone, financialPhone, firstName, lastName, businessName, isActive } = req.body;
 
   try {
-    const updatedSeller = await sellerService.updateSeller(sellerId, {
+    const updatedSeller = await sellerService.updateSeller(userId, {
       phone,
       financialPhone,
       firstName,
@@ -84,33 +81,32 @@ const editSeller = async (req, res) => {
     });
 
     if (!updatedSeller) {
-      logger.error(`Seller with ID ${sellerId} not found.`);
+      logger.error(`Seller with userId ${userId} not found.`);
       return res.status(404).json({ message: "Seller not found" });
     }
 
-    logger.info(`Seller with ID ${sellerId} updated successfully.`);
+    logger.info(`Seller with userId ${userId} updated successfully.`);
     res.json({ message: "Seller updated successfully", seller: updatedSeller });
   } catch (error) {
     logger.error(`Error updating seller: ${error.message}`);
-    res.status(500).json({ message: "Error updating seller" });
+    res.status(500).json({ message: "Error updating seller", error: error.message });
   }
 };
 
-// Delete seller
 const deleteSeller = async (req, res) => {
-  const { id } = req.params;
+  const { userId } = req.params;
 
   try {
-    const result = await sellerService.removeSeller(id);
+    const result = await sellerService.removeSeller(userId);
     if (!result) {
-      logger.warn(`Seller with ID ${id} not found`);
+      logger.warn(`Seller with userId ${userId} not found`);
       return res.status(404).json({ message: "Seller not found" });
     }
-    logger.info(`Deleted seller with ID ${id} successfully`);
+    logger.info(`Deleted seller with userId ${userId} successfully`);
     res.json({ message: "Seller deleted successfully" });
   } catch (error) {
-    logger.error(`Error deleting seller with ID ${id}: ${error.message}`);
-    res.status(500).json({ message: "Error deleting seller" });
+    logger.error(`Error deleting seller with userId ${userId}: ${error.message}`);
+    res.status(500).json({ message: "Error deleting seller", error: error.message });
   }
 };
 

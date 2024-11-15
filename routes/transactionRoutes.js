@@ -1,20 +1,14 @@
 const express = require("express");
-const router = express.Router();
 const transactionController = require("../controllers/transactionController");
 const validateRequest = require("../middlewares/validateRequest");
-const { phoneSchema } = require("../validators/walletValidator");
-const { createTransactionSchema } = require("../validators/transactionValidators");
+const { transactionSchema } = require("../validators/transactionValidators");
 
-router.get(
-  "/:phone/statement",
-  validateRequest(phoneSchema, "params"),
-  transactionController.getWalletStatement
-);
+const router = express.Router();
 
-router.post(
-  "/create",
-  validateRequest(createTransactionSchema),
-  transactionController.createTransaction
-);
+router.get("/", transactionController.getAllTransactions);
+router.post("/", validateRequest(transactionSchema), transactionController.createTransaction);
+router.put("/:id", validateRequest(transactionSchema), transactionController.updateTransaction);
+router.delete("/:id", transactionController.deleteTransaction);
+router.get('/statement/:userId', transactionController.getWalletStatement)
 
 module.exports = router;

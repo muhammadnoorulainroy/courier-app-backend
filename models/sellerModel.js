@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const sellerSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true,
+    unique: true
+  },
   phone: {
     type: String,
     required: [true, "Phone number is required"],

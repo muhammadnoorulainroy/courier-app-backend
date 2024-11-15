@@ -1,19 +1,25 @@
 const Courier = require("../models/courierModel");
-const Shipment = require("../models/shipmentModel")
+const Shipment = require("../models/shipmentModel");
 
-const savePersonalInfo = async (personalInfo) => {
-  return await Courier.updateOne({ phone: personalInfo.phone }, personalInfo, {
-    upsert: true,
-  });
+const savePersonalInfo = async (userId, personalInfo) => {
+  await Courier.updateOne({ userId }, personalInfo, { upsert: true });
+
+  return await findUserByUserId(userId)
 };
 
-const saveVehicleInfo = async (phone, vehicleInfo) => {
-  return await Courier.updateOne({ phone }, { $set: vehicleInfo });
+const saveVehicleInfo = async (userId, vehicleInfo) => {
+  const user = await findUserByUserId(userId);
+  if (!user) throw new Error("User not found against the provided ID");
+
+  return await Courier.updateOne({ userId }, { $set: vehicleInfo });
 };
 
-const saveSchedule = async (phone, schedules) => {
+const saveSchedule = async (userId, schedules) => {
+  const user = await findUserByUserId(userId);
+  if (!user) throw new Error("User not found against the provided ID");
+
   return await Courier.updateOne(
-    { phone },
+    { userId },
     {
       $set: {
         dropOffSchedule: schedules.dropOffSchedule,
@@ -23,29 +29,40 @@ const saveSchedule = async (phone, schedules) => {
   );
 };
 
-const findUserByPhone = async (phone) => {
-  return await Courier.findOne({ phone });
+const findUserByUserId = async (userId) => {
+  return await Courier.findOne({ userId });
 };
 
+const updatePhone = async (userId, newPhone) => {
+  const user = await findUserByUserId(userId);
+  if (!user) throw new Error("User not found against the provided ID");
 
-const updatePhone = async (phone, newPhone) => {
-  return await Courier.updateOne({ phone }, { phone: newPhone });
+  return await Courier.updateOne({ userId }, { phone: newPhone });
 };
 
-const updatePersonalDetails = async (phone, updateFields) => {
-  return await Courier.updateOne({ phone }, { $set: updateFields });
+const updatePersonalDetails = async (userId, updateFields) => {
+  const user = await findUserByUserId(userId);
+  if (!user) throw new Error("User not found against the provided ID");
+
+  return await Courier.updateOne({ userId }, { $set: updateFields });
 };
 
-const updatePickupSchedule = async (phone, pickupSchedule) => {
+const updatePickupSchedule = async (userId, pickupSchedule) => {
+  const user = await findUserByUserId(userId);
+  if (!user) throw new Error("User not found against the provided ID");
+
   return await Courier.updateOne(
-    { phone },
+    { userId },
     { $set: { pickUpSchedule: pickupSchedule } }
   );
 };
 
-const updateDropoffSchedule = async (phone, dropoffSchedule) => {
+const updateDropoffSchedule = async (userId, dropoffSchedule) => {
+  const user = await findUserByUserId(userId);
+  if (!user) throw new Error("User not found against the provided ID");
+
   return await Courier.updateOne(
-    { phone },
+    { userId },
     { $set: { dropOffSchedule: dropoffSchedule } }
   );
 };
@@ -56,7 +73,7 @@ const getAllCouriers = async () => {
   const couriersWithStats = await Promise.all(
     couriers.map(async (courier) => {
       const stats = await Shipment.aggregate([
-        { $match: { courierPhone: courier.phone } },
+        { $match: { courierId: courier.userId } }, // Using courierId to match shipments
         {
           $group: {
             _id: "$status",
@@ -94,15 +111,14 @@ const getAllCouriers = async () => {
   return couriersWithStats;
 };
 
-
 module.exports = {
   savePersonalInfo,
-  findUserByPhone,
+  findUserByUserId,
   saveVehicleInfo,
   saveSchedule,
   updatePhone,
   updatePersonalDetails,
   updatePickupSchedule,
   updateDropoffSchedule,
-  getAllCouriers
+  getAllCouriers,
 };

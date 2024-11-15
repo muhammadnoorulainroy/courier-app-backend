@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({
-  walletPhone: {
-    type: String,
+  walletId: {
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Wallet",
     required: true,
-    match: [
-      /^[+][1-9][0-9]{9,14}$/,
-      "Phone number must start with + and contain 10-15 digits.",
-    ],
+  },
+  userId: {
+    type: String,
+    required: true
   },
   type: {
     type: String,
@@ -18,13 +19,23 @@ const transactionSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  inOut: {
+    type: String,
+    enum: ["In", "Out", "Pass-through"],
+    required: true,
+  },
+  reason: {
+    type: String,
+    required: true,
+    enum: ["Delivery Payment", "Refund", "Penalty", "Bonus", "Fees", "Promocode", "POD", "Other"],
+  },
   description: {
     type: String,
     required: true,
   },
-  trackingId: {  // Updated field name
+  trackingId: {
     type: String,
-    required: true,
+    required: false,
   },
   date: {
     type: Date,

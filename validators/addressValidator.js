@@ -12,6 +12,8 @@ const createAddressSchema = Joi.object({
     apartmentNumber: Joi.string().optional(),
     closestLandmark: Joi.string().optional(),
     locationLink: Joi.string().optional(),
+    latitude: Joi.number().optional(),
+    longitude: Joi.number().optional(),
     isSaved: Joi.boolean().optional()
 });
 

@@ -27,8 +27,8 @@ router.post(
 
 router.get("/", sellerController.viewSellers);
 
-router.put("/:sellerId", validateRequest(editSellerSchema), sellerController.editSeller);
+router.put("/:userId", validateRequest(editSellerSchema), sellerController.editSeller);
 
-router.delete("/:id", sellerController.deleteSeller);
+router.delete("/:userId", sellerController.deleteSeller);
 
 module.exports = router;
