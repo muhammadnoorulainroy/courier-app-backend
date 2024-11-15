@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
 const addressSchema = new mongoose.Schema(
   {
@@ -11,7 +11,7 @@ const addressSchema = new mongoose.Schema(
     closestLandmark: String,
     locationLink: String,
     latitude: { type: Number, required: true },
-    longitude: { type: Number, required: true }
+    longitude: { type: Number, required: true },
   },
   { _id: false }
 );
@@ -36,13 +36,20 @@ const shipmentSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
-    senderPhone: {
+    senderId: {
       type: String,
+      ref: "Seller",
       required: true,
-      match: [
-        /^[+][1-9][0-9]{9,14}$/,
-        "Phone number must be in international format.",
-      ],
+    },
+    courierId: {
+      type: String,
+      ref: "Courier",
+      default: null,
+    },
+    recipientId: {
+      type: String,
+      ref: "Recipient",
+      required: true,
     },
     type: { type: String, enum: ["Piece", "Bulk"], required: true },
     weight: { type: Number, required: true },
@@ -59,12 +66,6 @@ const shipmentSchema = new mongoose.Schema(
     dropOffDetails: {
       date: Date,
       time: String,
-      recipient: {
-        firstName: String,
-        lastName: String,
-        phone: String,
-        whatsapp: String,
-      },
       location: addressSchema,
     },
     paymentDetails: {
@@ -82,7 +83,6 @@ const shipmentSchema = new mongoose.Schema(
       taxes: Number,
     },
     status: { type: String, default: "Created" },
-    courierPhone: { type: String, default: null },
     trackingStatus: [trackingStatusSchema],
   },
   { timestamps: true }
@@ -90,11 +90,12 @@ const shipmentSchema = new mongoose.Schema(
 
 shipmentSchema.pre("save", function (next) {
   if (!this.trackingId) {
-    const uuid = uuidv4().replace(/-/g, '');
-    const numericId = parseInt(uuid, 16).toString().slice(0, 12);
+    const uuid = uuidv4().replace(/-/g, "");
+    const numericId = BigInt(`0x${uuid}`).toString().slice(0, 12);
     this.trackingId = `TRK-${numericId}`;
   }
   next();
 });
+
 
 module.exports = mongoose.model("Shipment", shipmentSchema);

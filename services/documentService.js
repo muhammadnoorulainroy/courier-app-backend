@@ -1,6 +1,10 @@
 const Courier = require("../models/courierModel");
+const { findUserByUserId } = require("./courierService");
 
-const updatePersonalDocuments = async (phone, files) => {
+const updatePersonalDocuments = async (userId, files) => {
+  const user = await findUserByUserId(userId)
+  if (!user) throw new Error("User not found")
+
   const updateData = {};
   [
     "idCardFront",
@@ -10,10 +14,13 @@ const updatePersonalDocuments = async (phone, files) => {
   ].forEach((field) => {
     if (files[field]) updateData[field] = files[field][0].path;
   });
-  return await Courier.updateOne({ phone }, { $set: updateData });
+  return await Courier.updateOne({ userId }, { $set: updateData });
 };
 
-const updateVehicleDocuments = async (phone, files) => {
+const updateVehicleDocuments = async (userId, files) => {
+  const user = await findUserByUserId(userId)
+  if (!user) throw new Error("User not found")
+
   const updateData = {};
   [
     "registrationCardFront",
@@ -23,7 +30,7 @@ const updateVehicleDocuments = async (phone, files) => {
   ].forEach((field) => {
     if (files[field]) updateData[field] = files[field][0].path;
   });
-  return await Courier.updateOne({ phone }, { $set: updateData });
+  return await Courier.updateOne({ userId }, { $set: updateData });
 };
 
 module.exports = { updatePersonalDocuments, updateVehicleDocuments };

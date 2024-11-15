@@ -6,51 +6,45 @@ const createShipment = async (shipmentData) => {
 };
 
 const updatePaymentStatus = async (shipmentId, status) => {
-  return await Shipment.findByIdAndUpdate(shipmentId, {
-    "paymentDetails.paymentStatus": status,
-  });
+  return await Shipment.findByIdAndUpdate(
+    shipmentId,
+    { "paymentDetails.paymentStatus": status },
+    { new: true }
+  );
 };
 
 const getShipmentSummary = async (shipmentId) => {
-  return await Shipment.findOne({ shipmentId }).select(
-    "summary paymentDetails status"
-  );
+  return await Shipment.findById(shipmentId, "summary");
 };
 
 const getShipmentById = async (shipmentId) => {
-  return await Shipment.findOne({ shipmentId });
+  return await Shipment.findById(shipmentId);
 };
 
-// Get all shipments that are not yet assigned to any courier
 const getPendingShipments = async () => {
-  return await Shipment.find({ courierPhone: null, status: "Created" });
+  return await Shipment.find({ courierId: null, status: "Created" });
 };
 
-// Get all shipments assigned to a courier that are not yet delivered
-const getScheduledShipments = async (courierPhone) => {
-  return await Shipment.find({ courierPhone, status: { $ne: "Delivered" } });
+const getScheduledShipments = async (courierId) => {
+  return await Shipment.find({ courierId, status: { $in: ["Scheduled", "In Transit"] } });
 };
 
-// Get all delivered shipments for a specific courier
-const getDeliveredShipments = async (courierPhone) => {
-  return await Shipment.find({ courierPhone, status: "Delivered" });
+const getDeliveredShipments = async (courierId) => {
+  return await Shipment.find({ courierId, status: "Delivered" });
 };
 
-const updateTrackingStatus = async (trackingId, statusUpdate) => {
+const updateTrackingStatus = async (trackingId, trackingData) => {
   return await Shipment.findOneAndUpdate(
     { trackingId },
-    { $push: { trackingStatus: { ...statusUpdate, timestamp: new Date() } } },
-    { new: true } // Return the updated document
+    { $push: { trackingStatus: trackingData } },
+    { new: true }
   );
 };
 
-const assignShipmentToCourier = async (trackingId, courierPhone) => {
+const assignShipmentToCourier = async (trackingId, courierId) => {
   return await Shipment.findOneAndUpdate(
-    { trackingId, courierPhone: null },
-    {
-      $set: { courierPhone },
-      $push: { trackingStatus: { status: "Shipment Scheduled", timestamp: new Date() } }
-    },
+    { trackingId },
+    { courierId, status: "Scheduled" },
     { new: true }
   );
 };
@@ -64,5 +58,5 @@ module.exports = {
   getScheduledShipments,
   getDeliveredShipments,
   updateTrackingStatus,
-  assignShipmentToCourier
+  assignShipmentToCourier,
 };

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
 const scheduleSchema = new mongoose.Schema(
   {
@@ -37,6 +38,11 @@ const scheduleSchema = new mongoose.Schema(
 );
 
 const courierSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    default: uuidv4,
+    unique: true,
+  },
   phone: {
     type: String,
     required: [true, "Phone number is required"],

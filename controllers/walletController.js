@@ -31,20 +31,14 @@ const verifyOtp = async (req, res) => {
 };
 
 const withdrawAmount = async (req, res) => {
-  const { phone, amount, accountDetails } = req.body;
+  const { walletId, amount, accountDetails } = req.body;
 
   try {
-    const transaction = await walletService.withdrawAmount(
-      phone,
-      amount,
-      accountDetails
-    );
-    logger.info(`Withdrawal request of ${amount} created for ${phone}`);
+    const transaction = await walletService.withdrawAmount(walletId, amount, accountDetails);
+    logger.info(`Withdrawal request of ${amount} created for wallet ID ${walletId}`);
     res.json({ message: "Withdrawal request created", transaction });
   } catch (error) {
-    logger.error(
-      `Error creating withdrawal request for ${phone}: ${error.message}`
-    );
+    logger.error(`Error creating withdrawal request for wallet ID ${walletId}: ${error.message}`);
     res.status(500).json({ message: "Error creating withdrawal request" });
   }
 };
@@ -62,14 +56,14 @@ const getPendingTransactions = async (req, res) => {
 
 const payDebt = async (req, res) => {
   try {
-    const { phone, amount } = req.body;
+    const { walletId, amount } = req.body;
     const receiptPath = req.file ? req.file.path : null;
 
-    const transaction = await walletService.payDebt(phone, amount, receiptPath);
-    logger.info(`Debt payment initiated by ${phone}`);
+    const transaction = await walletService.payDebt(walletId, amount, receiptPath);
+    logger.info(`Debt payment initiated for wallet ID ${walletId}`);
     res.status(201).json({ message: "Debt payment initiated", transaction });
   } catch (error) {
-    logger.error(`Error processing debt payment for ${req.body.phone}: ${error.message}`);
+    logger.error(`Error processing debt payment for wallet ID ${req.body.walletId}: ${error.message}`);
     res.status(500).json({ message: "Error processing debt payment" });
   }
 };
@@ -79,5 +73,5 @@ module.exports = {
   verifyOtp,
   withdrawAmount,
   getPendingTransactions,
-  payDebt
+  payDebt,
 };

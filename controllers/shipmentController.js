@@ -52,7 +52,6 @@ const getShipment = async (req, res) => {
   }
 };
 
-// Get all pending shipments (not yet assigned to a courier)
 const getPendingShipments = async (req, res) => {
   try {
     const shipments = await shipmentService.getPendingShipments();
@@ -64,36 +63,26 @@ const getPendingShipments = async (req, res) => {
   }
 };
 
-// Get all scheduled shipments assigned to a specific courier (not yet delivered)
 const getScheduledShipments = async (req, res) => {
-  const { phone } = req.params;
+  const { courierId } = req.params;
   try {
-    const shipments = await shipmentService.getScheduledShipments(phone);
-    logger.info(
-      `Fetched ${shipments.length} scheduled shipments for courier with phone: ${phone}`
-    );
+    const shipments = await shipmentService.getScheduledShipments(courierId);
+    logger.info(`Fetched ${shipments.length} scheduled shipments for courier with ID: ${courierId}`);
     res.json({ shipments });
   } catch (error) {
-    logger.error(
-      `Error fetching scheduled shipments for ${phone}: ${error.message}`
-    );
+    logger.error(`Error fetching scheduled shipments for ${courierId}: ${error.message}`);
     res.status(500).json({ message: "Error fetching scheduled shipments" });
   }
 };
 
-// Get delivery history for a specific courier (all delivered shipments)
 const getDeliveredShipments = async (req, res) => {
-  const { phone } = req.params;
+  const { courierId } = req.params;
   try {
-    const shipments = await shipmentService.getDeliveredShipments(phone);
-    logger.info(
-      `Fetched ${shipments.length} delivered shipments for courier with phone: ${phone}`
-    );
+    const shipments = await shipmentService.getDeliveredShipments(courierId);
+    logger.info(`Fetched ${shipments.length} delivered shipments for courier with ID: ${courierId}`);
     res.json({ shipments });
   } catch (error) {
-    logger.error(
-      `Error fetching delivered shipments for ${phone}: ${error.message}`
-    );
+    logger.error(`Error fetching delivered shipments for ${courierId}: ${error.message}`);
     res.status(500).json({ message: "Error fetching delivered shipments" });
   }
 };
@@ -120,17 +109,17 @@ const updateTrackingStatus = async (req, res) => {
 
 const assignShipmentToCourier = async (req, res) => {
   const { trackingId } = req.params;
-  const { courierPhone } = req.body;
+  const { courierId } = req.body;
 
   try {
-    const shipment = await shipmentService.assignShipmentToCourier(trackingId, courierPhone);
+    const shipment = await shipmentService.assignShipmentToCourier(trackingId, courierId);
 
     if (!shipment) {
       logger.warn(`Shipment not found for tracking ID: ${trackingId}`);
       return res.status(404).json({ message: "Shipment not found" });
     }
 
-    logger.info(`Shipment with tracking ID: ${trackingId} assigned to courier with phone: ${courierPhone}`);
+    logger.info(`Shipment with tracking ID: ${trackingId} assigned to courier with ID: ${courierId}`);
     res.json({ message: "Shipment assigned to courier successfully", shipment });
   } catch (error) {
     logger.error(`Error assigning shipment to courier for tracking ID ${trackingId}: ${error.message}`);
@@ -147,5 +136,5 @@ module.exports = {
   getScheduledShipments,
   getDeliveredShipments,
   updateTrackingStatus,
-  assignShipmentToCourier
+  assignShipmentToCourier,
 };
