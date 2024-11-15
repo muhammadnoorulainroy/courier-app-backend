@@ -9,6 +9,8 @@ const transactionRoutes = require("./transactionRoutes");
 const shiftRoutes = require("./shiftRoutes");
 const adminRoutes = require("./adminRoutes");
 const promocodeRoutes = require("./promocodeRoutes");
+const penaltyoutes = require("./penaltyRoutes");
+const recipientRoutes = require("./recipientRoutes");
 
 router.use("/seller", sellerRoutes);
 router.use("/courier", courierRoutes);
@@ -19,5 +21,7 @@ router.use("/transaction", transactionRoutes)
 router.use("/shift", shiftRoutes);
 router.use("/admin", adminRoutes);
 router.use("/promocode", promocodeRoutes);
+router.use("/penalty", penaltyoutes);
+router.use("/recipient", recipientRoutes);
 
 module.exports = router;

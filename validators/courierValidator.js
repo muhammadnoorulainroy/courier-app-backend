@@ -50,9 +50,7 @@ const personalInfoSchema = Joi.object({
 
 // Validation for saving vehicle information
 const vehicleInfoSchema = Joi.object({
-  phone: Joi.string()
-    .pattern(/^[+][0-9]{10,15}$/)
-    .required(),
+  userId: Joi.string().required(),
   vehicleBrand: Joi.string().min(2).max(50).required(),
   vehicleModel: Joi.string().min(1).max(50).required(),
   vehicleYear: Joi.number()
@@ -70,9 +68,7 @@ const vehicleInfoSchema = Joi.object({
 
 // Validation for saving schedule information
 const scheduleSchema = Joi.object({
-  phone: Joi.string()
-    .pattern(/^[+][0-9]{10,15}$/)
-    .required(),
+  userId: Joi.string().required(),
   dropOffSchedule: Joi.array()
     .items(
       Joi.object({
@@ -116,6 +112,7 @@ const scheduleSchema = Joi.object({
 });
 
 const updatePhoneSchema = Joi.object({
+  userId: Joi.string().required(),
   phone: Joi.string()
   .pattern(/^[+][0-9]{10,15}$/)
   .required(),
@@ -125,7 +122,7 @@ const updatePhoneSchema = Joi.object({
 });
 
 const pickupScheduleSchema = Joi.object({
-  phone: Joi.string().required(),
+  userId: Joi.string().required(),
   pickupSchedule: Joi.array().items(
     Joi.object({
       governorate: Joi.string().required(),
@@ -151,7 +148,7 @@ const pickupScheduleSchema = Joi.object({
 });
 
 const dropoffScheduleSchema = Joi.object({
-  phone: Joi.string().required(),
+  userId: Joi.string().required(),
   dropoffSchedule: Joi.array().items(
     Joi.object({
       governorate: Joi.string().required(),
@@ -177,6 +174,7 @@ const dropoffScheduleSchema = Joi.object({
 });
 
 const updatePersonalDetailsSchema = Joi.object({
+  userId: Joi.string().required(),
   phone: Joi.string().required(),
   firstName: Joi.string().min(2).max(50).pattern(/^[A-Za-z\s]+$/).optional(),
   lastName: Joi.string().min(2).max(50).pattern(/^[A-Za-z\s]+$/).optional(),

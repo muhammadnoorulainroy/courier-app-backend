@@ -1,7 +1,18 @@
 const Transaction = require("../models/transactionModel");
 
-const getWalletStatement = async (phone) => {
-  return await Transaction.find({ walletPhone: phone }).sort({ date: -1 });
+const getAllTransactions = async (userId, walletId, filters = {}) => {
+  const query = { ...filters };
+
+  if (userId) query.userId = userId;
+  if (walletId) query.walletId = walletId;
+
+  return await Transaction.find(query).sort({ date: -1 });
+};
+
+
+const getWalletStatement = async (userId) => {
+  console.log("userId", userId)
+  return await Transaction.find({ userId: userId }).sort({ date: -1 });
 };
 
 const createTransaction = async (transactionData) => {
@@ -9,7 +20,18 @@ const createTransaction = async (transactionData) => {
   return await transaction.save();
 };
 
+const updateTransaction = async (id, transactionData) => {
+  return await Transaction.findByIdAndUpdate(id, transactionData, { new: true });
+};
+
+const deleteTransaction = async (id) => {
+  return await Transaction.findByIdAndDelete(id);
+};
+
 module.exports = {
-  getWalletStatement,
-  createTransaction
+  getAllTransactions,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
+  getWalletStatement
 };

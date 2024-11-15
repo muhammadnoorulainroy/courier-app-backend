@@ -1,7 +1,7 @@
 const Wallet = require("../models/walletModel");
 
-const withdrawAmount = async (phone, amount, accountDetails) => {
-  const wallet = await Wallet.findOne({ phone });
+const withdrawAmount = async (walletId, amount, accountDetails) => {
+  const wallet = await Wallet.findOne({ walletId });
 
   if (!wallet) throw new Error("Wallet not found");
   if (wallet.balance < amount) throw new Error("Insufficient balance");
@@ -24,6 +24,7 @@ const getPendingTransactions = async () => {
   return await Wallet.aggregate([
     {
       $project: {
+        walletId: 1,
         phone: 1,
         pendingTransactions: {
           $filter: {
@@ -42,12 +43,12 @@ const getPendingTransactions = async () => {
   ]);
 };
 
-const payDebt = async (phone, amount, receiptPath) => {
-  const wallet = await Wallet.findOne({ phone });
+const payDebt = async (walletId, amount, receiptPath) => {
+  const wallet = await Wallet.findOne({ walletId });
   if (!wallet) throw new Error("Wallet not found");
 
   const transaction = {
-    amount: amount,
+    amount,
     type: "debt",
     status: "pending",
     receipt: receiptPath,
