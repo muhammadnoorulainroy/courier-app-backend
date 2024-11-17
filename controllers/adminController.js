@@ -17,7 +17,7 @@ const getDashboardStats = async (req, res) => {
 const addAdmin = async (req, res) => {
   try {
     const newAdmin = await adminService.addAdmin(req.body);
-    logger.info("Admin added successfully");
+    logger.info(`Admin added successfully with userId: ${newAdmin.userId}`);
     res
       .status(201)
       .json({ message: "Admin added successfully", data: newAdmin });
@@ -39,10 +39,14 @@ const getAllAdmins = async (req, res) => {
 };
 
 const updateAdmin = async (req, res) => {
-  const { adminId } = req.params;
+  const { userId } = req.params;
   try {
-    const updatedAdmin = await adminService.updateAdmin(adminId, req.body);
-    logger.info("Admin updated successfully");
+    const updatedAdmin = await adminService.updateAdmin(userId, req.body);
+    if (!updatedAdmin) {
+      logger.warn(`Admin with userId ${userId} not found.`);
+      return res.status(404).json({ message: "Admin not found" });
+    }
+    logger.info(`Admin updated successfully with userId: ${userId}`);
     res
       .status(200)
       .json({ message: "Admin updated successfully", data: updatedAdmin });
@@ -53,10 +57,14 @@ const updateAdmin = async (req, res) => {
 };
 
 const deleteAdmin = async (req, res) => {
-  const { adminId } = req.params;
+  const { userId } = req.params;
   try {
-    await adminService.deleteAdmin(adminId);
-    logger.info("Admin deleted successfully");
+    const deletedAdmin = await adminService.deleteAdmin(userId);
+    if (!deletedAdmin) {
+      logger.warn(`Admin with userId ${userId} not found.`);
+      return res.status(404).json({ message: "Admin not found" });
+    }
+    logger.info(`Admin deleted successfully with userId: ${userId}`);
     res.status(200).json({ message: "Admin deleted successfully" });
   } catch (error) {
     logger.error(`Error deleting admin: ${error.message}`);
