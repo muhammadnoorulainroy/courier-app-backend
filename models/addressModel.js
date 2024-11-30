@@ -9,8 +9,9 @@ const addressSchema = new mongoose.Schema(
     apartmentNumber: { type: String },
     closestLandmark: { type: String },
     locationLink: { type: String },
-    latitude: { type: Number },
-    longitude: { type: Number },
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true },
+    governorate: { type: String, required: true }, // Added governorate field
     isSaved: { type: Boolean, default: false },
   },
   { timestamps: true }

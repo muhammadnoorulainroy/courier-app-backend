@@ -12,13 +12,14 @@ const addressSchema = new mongoose.Schema(
     locationLink: String,
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
+    governorate: { type: String, required: true },
   },
   { _id: false }
 );
 
 const trackingStatusSchema = new mongoose.Schema(
   {
-    status: { type: String, required: true }, // e.g., "Created", "Picked Up", "In Transit", "Delivered"
+    status: { type: String, required: true }, // E.g., "Created", "Picked Up", "In Transit", "Delivered"
     location: { type: String },
     timestamp: { type: Date, default: Date.now },
   },
@@ -50,6 +51,11 @@ const shipmentSchema = new mongoose.Schema(
       type: String,
       ref: "Recipient",
       required: true,
+    },
+    referralId: {
+      type: String,
+      ref: "Seller", // For shipments attributed to referrals
+      default: null,
     },
     type: { type: String, enum: ["Piece", "Bulk"], required: true },
     weight: { type: Number, required: true },
@@ -84,6 +90,9 @@ const shipmentSchema = new mongoose.Schema(
     },
     status: { type: String, default: "Created" },
     trackingStatus: [trackingStatusSchema],
+    isLate: { type: Boolean, default: false }, // Indicates late shipments
+    needCooling: { type: Boolean, default: false }, // Indicates if parcels need cooling
+    isFragile: { type: Boolean, default: false }, // Indicates if the parcel is fragile
   },
   { timestamps: true }
 );
@@ -96,6 +105,5 @@ shipmentSchema.pre("save", function (next) {
   }
   next();
 });
-
 
 module.exports = mongoose.model("Shipment", shipmentSchema);

@@ -1,10 +1,10 @@
 const { v4: uuidv4 } = require("uuid");
-
 const addressService = require('../services/addressService');
 const recipientService = require('../services/recipientService');
 const logger = require('../config/logger');
 const { createAddressSchema } = require('../validators/addressValidator');
 
+// Add new address or link to existing recipient
 const addAddress = async (req, res) => {
     try {
         const {
@@ -17,6 +17,7 @@ const addAddress = async (req, res) => {
             locationLink,
             latitude,
             longitude,
+            governorate,
             firstName,
             lastName,
             phone,
@@ -33,7 +34,7 @@ const addAddress = async (req, res) => {
         // Check if recipient exists
         let recipient = await recipientService.getRecipientByPhone(phone);
 
-        // Create new address
+        // Create new address data object
         const addressData = {
             district,
             streetName,
@@ -43,17 +44,20 @@ const addAddress = async (req, res) => {
             closestLandmark,
             locationLink,
             latitude,
-            longitude
+            longitude,
+            governorate
         };
+
+        // Add address to the database
         const address = await addressService.addAddress(addressData);
 
         if (recipient) {
-            // Update recipient's addresses
+            // If recipient exists, add the address to their address list
             recipient.addresses.push(address._id);
             await recipient.save();
             logger.info(`Address added to existing recipient with phone: ${phone}`);
         } else {
-            // Create a new recipient
+            // Create a new recipient if not found
             const recipientData = {
                 userId: uuidv4(),
                 firstName,
@@ -66,6 +70,7 @@ const addAddress = async (req, res) => {
             logger.info(`New recipient created with phone: ${phone}`);
         }
 
+        // Return success response with the address and recipient details
         res.status(201).json({ message: 'Address added successfully', address, recipient });
     } catch (error) {
         logger.error(`Error adding address: ${error.message}`);
@@ -73,6 +78,7 @@ const addAddress = async (req, res) => {
     }
 };
 
+// Get all addresses
 const getAddressBook = async (req, res) => {
     try {
         const addresses = await addressService.getAddressBook();
@@ -83,6 +89,7 @@ const getAddressBook = async (req, res) => {
     }
 };
 
+// Get address by ID
 const getAddressById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -98,6 +105,7 @@ const getAddressById = async (req, res) => {
     }
 };
 
+// Delete address by ID
 const deleteAddress = async (req, res) => {
     try {
         const { id } = req.params;
@@ -116,6 +124,7 @@ const deleteAddress = async (req, res) => {
             await recipient.save();
         }
 
+        // Delete the address from the database
         await addressService.deleteAddress(id);
         logger.info('Customer address deleted successfully');
         res.json({ message: 'Address deleted successfully' });

@@ -11,6 +11,9 @@ const savePersonalInfo = async (userId, personalInfo) => {
   return await findSellerById(userId)
 };
 
+const findSellerByPhone = async (phone) => {
+  return await Seller.findOne({ phone })
+}
 
 const getAllSellers = async () => {
   const sellers = await Seller.find().lean();
@@ -65,9 +68,33 @@ const removeSeller = async (userId) => {
   return await Seller.findOneAndDelete({ userId });
 };
 
+const recordSession = async (userId, sessionDetails) => {
+  await Seller.updateOne(
+    { userId },
+    { $push: { sessions: sessionDetails } }
+  );
+};
+
+const endSession = async (userId) => {
+  const seller = await Seller.findOne({ userId });
+
+  if (!seller || !seller.sessions || seller.sessions.length === 0) {
+    throw new Error("No active session found for the seller");
+  }
+
+  const activeSession = seller.sessions[seller.sessions.length - 1];
+  activeSession.endTime = new Date();
+  activeSession.duration = (activeSession.endTime - new Date(activeSession.startTime)) / 1000; // Duration in seconds
+
+  await seller.save();
+};
+
 module.exports = {
   savePersonalInfo,
   getAllSellers,
   updateSeller,
   removeSeller,
+  findSellerByPhone,
+  recordSession,
+  endSession
 };

@@ -7,6 +7,10 @@ const savePersonalInfo = async (userId, personalInfo) => {
   return await findUserByUserId(userId)
 };
 
+const findCourierByPhone = async (phone) => {
+  return await Courier.findOne({ phone })
+}
+
 const saveVehicleInfo = async (userId, vehicleInfo) => {
   const user = await findUserByUserId(userId);
   if (!user) throw new Error("User not found against the provided ID");
@@ -121,4 +125,5 @@ module.exports = {
   updatePickupSchedule,
   updateDropoffSchedule,
   getAllCouriers,
+  findCourierByPhone
 };

@@ -3,7 +3,8 @@ const PromoCode = require("../models/promocodeModel");
 // Create a new promo code
 const createPromoCode = async (promoCodeData) => {
   const promoCode = new PromoCode(promoCodeData);
-  return await promoCode.save();
+  await promoCode.save();
+  return promoCode;
 };
 
 // Get all promo codes
@@ -20,7 +21,7 @@ const getPromoCodeById = async (promoCodeId) => {
 const updatePromoCode = async (promoCodeId, updateData) => {
   return await PromoCode.findByIdAndUpdate(promoCodeId, updateData, {
     new: true,
-    runValidators: true
+    runValidators: true, // Ensure that validators are run during the update
   });
 };
 
@@ -34,5 +35,5 @@ module.exports = {
   getAllPromoCodes,
   getPromoCodeById,
   updatePromoCode,
-  deletePromoCode
+  deletePromoCode,
 };

@@ -9,7 +9,10 @@ const createPromoCode = async (req, res) => {
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
+
     const promoCodeData = req.body;
+
+    // Create the promo code
     const newPromoCode = await promoCodeService.createPromoCode(promoCodeData);
     logger.info("Promo code created successfully");
     res.status(201).json(newPromoCode);
@@ -36,10 +39,12 @@ const getPromoCodeById = async (req, res) => {
   try {
     const promoCodeId = req.params.id;
     const promoCode = await promoCodeService.getPromoCodeById(promoCodeId);
+
     if (!promoCode) {
       logger.warn(`Promo code with ID ${promoCodeId} not found`);
       return res.status(404).json({ message: "Promo code not found" });
     }
+
     logger.info("Promo code retrieved successfully");
     res.json(promoCode);
   } catch (error) {
@@ -53,14 +58,17 @@ const updatePromoCode = async (req, res) => {
   try {
     const promoCodeId = req.params.id;
     const updateData = req.body;
+
     const updatedPromoCode = await promoCodeService.updatePromoCode(
       promoCodeId,
       updateData
     );
+
     if (!updatedPromoCode) {
       logger.warn(`Promo code with ID ${promoCodeId} not found`);
       return res.status(404).json({ message: "Promo code not found" });
     }
+
     logger.info("Promo code updated successfully");
     res.json(updatedPromoCode);
   } catch (error) {
@@ -73,13 +81,13 @@ const updatePromoCode = async (req, res) => {
 const deletePromoCode = async (req, res) => {
   try {
     const promoCodeId = req.params.id;
-    const deletedPromoCode = await promoCodeService.deletePromoCode(
-      promoCodeId
-    );
+    const deletedPromoCode = await promoCodeService.deletePromoCode(promoCodeId);
+
     if (!deletedPromoCode) {
       logger.warn(`Promo code with ID ${promoCodeId} not found`);
       return res.status(404).json({ message: "Promo code not found" });
     }
+
     logger.info("Promo code deleted successfully");
     res.json({ message: "Promo code deleted successfully" });
   } catch (error) {

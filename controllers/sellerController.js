@@ -23,22 +23,47 @@ const requestOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
   const { phone, otp } = req.body;
 
-  const { isValid, message, purpose } = await otpService.verifyOtp(phone, otp, "seller");
-  if (!isValid) {
-    logger.warn(`OTP verification failed for ${phone}: ${message}`);
-    return res.status(400).json({ message });
-  }
+  try {
+    const { isValid, message, purpose } = await otpService.verifyOtp(phone, otp, "seller");
+    if (!isValid) {
+      logger.warn(`OTP verification failed for ${phone}: ${message}`);
+      return res.status(400).json({ message });
+    }
 
-  if (purpose === "sign-in") {
-    const token = jwt.sign({ phone }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    logger.info(`OTP verified successfully for ${phone} and user signed in`);
-    return res.json({ message: "OTP verified", token });
-  }
+    if (purpose === "sign-in") {
+      let user = await sellerService.findSellerByPhone(phone);
+      let userType = "Seller";
 
-  logger.info(`OTP verified successfully for ${phone}`);
-  res.json({ message: "OTP verified" });
+      if (!user) {
+        logger.warn(`User with phone ${phone} not found`);
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const token = jwt.sign({ phone, userType, userId: user.userId }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+
+      const sessionDetails = {
+        startTime: new Date(),
+        endTime: null, // To be updated when the session ends
+        duration: null, // To be calculated
+      };
+      await sellerService.recordSession(user.userId, sessionDetails);
+
+      logger.info(`OTP verified successfully for ${phone} and user signed in`);
+      return res.json({ 
+        message: "OTP verified", 
+        token, 
+        user
+      });
+    }
+
+    logger.info(`OTP verified successfully for ${phone}`);
+    res.json({ message: "OTP verified" });
+  } catch (error) {
+    logger.error(`Error verifying OTP for ${phone}: ${error.message}`);
+    res.status(500).json({ message: "Error verifying OTP" });
+  }
 };
 
 const signUp = async (req, res) => {

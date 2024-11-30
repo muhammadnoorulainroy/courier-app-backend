@@ -12,6 +12,7 @@ const promocodeRoutes = require("./promocodeRoutes");
 const penaltyoutes = require("./penaltyRoutes");
 const recipientRoutes = require("./recipientRoutes");
 const notificationRoutes = require("./notificationRoutes");
+const reportRoutes = require("./reportRoutes");
 
 router.use("/seller", sellerRoutes);
 router.use("/courier", courierRoutes);
@@ -25,5 +26,6 @@ router.use("/promocode", promocodeRoutes);
 router.use("/penalty", penaltyoutes);
 router.use("/recipient", recipientRoutes);
 router.use("/notifications", notificationRoutes);
+router.use("/report", reportRoutes);
 
 module.exports = router;

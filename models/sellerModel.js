@@ -4,7 +4,7 @@ const sellerSchema = new mongoose.Schema({
   userId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   phone: {
     type: String,
@@ -44,6 +44,7 @@ const sellerSchema = new mongoose.Schema({
   },
   businessName: {
     type: String,
+    required: true,
     required: [true, "Business name is required"],
     minlength: [2, "Business name must be at least 2 characters long"],
     maxlength: [100, "Business name cannot exceed 100 characters"],
@@ -52,6 +53,28 @@ const sellerSchema = new mongoose.Schema({
       "Business name can only contain letters, numbers, spaces, and limited special characters (' - .)",
     ],
   },
+  referralPhone: {
+    type: String,
+    match: [
+      /^[+][1-9][0-9]{9,14}$/,
+      "Referral phone number must start with + and contain 10-15 digits.",
+    ],
+    default: null,
+  },
+  referees: [{ type: String }], // List of userIds referred by this seller
+  referralEarnings: {
+    type: Number,
+    default: 0, // Total earnings from referrals
+  },
+  // Sessions Information
+  sessions: [
+    {
+      sessionDate: { type: Date, required: true }, // Date of the session
+      duration: { type: Number, required: true }, // Duration in minutes
+      startTime: { type: Date, required: true }, // Start time of session
+      endTime: { type: Date, required: true }, // End time of session
+    },
+  ],
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
 });
