@@ -25,5 +25,7 @@ router.get("/scheduled/:phone", shipmentController.getScheduledShipments);
 router.get("/history/:phone", shipmentController.getDeliveredShipments);
 router.patch("/update-tracking-status/:trackingId", shipmentController.updateTrackingStatus);
 router.patch("/assign/:trackingId", shipmentController.assignShipmentToCourier);
+router.delete("/:trackingId", shipmentController.deleteShipmentByTrackingId);
+router.get('/:sellerId/shipments', shipmentController.getSellerShipmentHistory);
 
 module.exports = router;

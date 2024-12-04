@@ -17,7 +17,7 @@ const sellerSchema = new mongoose.Schema({
   },
   financialPhone: {
     type: String,
-    required: [true, "Financial phone number is required"],
+    required: [false, "Financial phone number is required"],
     match: [
       /^[+][1-9][0-9]{9,14}$/,
       "Financial phone number must start with + and contain 10-15 digits.",
@@ -76,6 +76,9 @@ const sellerSchema = new mongoose.Schema({
     },
   ],
   isActive: { type: Boolean, default: true },
+  addresses: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "Address" }, // Array of references to Address model
+  ],  
   createdAt: { type: Date, default: Date.now },
 });
 

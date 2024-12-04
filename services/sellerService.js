@@ -89,6 +89,10 @@ const endSession = async (userId) => {
   await seller.save();
 };
 
+const getSellerById = async (sellerId) => {
+  return await Seller.findOne({ userId: sellerId });
+};
+
 module.exports = {
   savePersonalInfo,
   getAllSellers,
@@ -96,5 +100,6 @@ module.exports = {
   removeSeller,
   findSellerByPhone,
   recordSession,
-  endSession
+  endSession,
+  getSellerById
 };

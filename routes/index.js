@@ -13,6 +13,7 @@ const penaltyoutes = require("./penaltyRoutes");
 const recipientRoutes = require("./recipientRoutes");
 const notificationRoutes = require("./notificationRoutes");
 const reportRoutes = require("./reportRoutes");
+const twilioRoutes = require("./twilioRoutes")
 
 router.use("/seller", sellerRoutes);
 router.use("/courier", courierRoutes);
@@ -27,5 +28,6 @@ router.use("/penalty", penaltyoutes);
 router.use("/recipient", recipientRoutes);
 router.use("/notifications", notificationRoutes);
 router.use("/report", reportRoutes);
+router.use("/twilio", twilioRoutes);
 
 module.exports = router;

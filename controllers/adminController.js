@@ -39,7 +39,7 @@ const getAllAdmins = async (req, res) => {
 };
 
 const updateAdmin = async (req, res) => {
-  const { userId } = req.params;
+  const { adminId: userId } = req.params;
   try {
     const updatedAdmin = await adminService.updateAdmin(userId, req.body);
     if (!updatedAdmin) {
@@ -57,7 +57,7 @@ const updateAdmin = async (req, res) => {
 };
 
 const deleteAdmin = async (req, res) => {
-  const { userId } = req.params;
+  const { adminId: userId } = req.params;
   try {
     const deletedAdmin = await adminService.deleteAdmin(userId);
     if (!deletedAdmin) {

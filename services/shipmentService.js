@@ -27,7 +27,8 @@ const getShipmentById = async (shipmentId) => {
 
 // Get all pending shipments (without assigned courier)
 const getPendingShipments = async () => {
-  return await Shipment.find({ courierId: null, status: "Created" });
+  return await Shipment.find({ status: "Created", courierId: null })
+    .sort({ createdAt: -1 }); // Sorting by createdAt in descending order
 };
 
 // Get scheduled shipments for a specific courier
@@ -58,6 +59,32 @@ const assignShipmentToCourier = async (trackingId, courierId) => {
   );
 };
 
+const deleteShipmentByTrackingId = async (trackingId) => {
+  // Find the shipment by trackingId and delete it
+  const shipment = await Shipment.findOneAndDelete({ trackingId });
+
+  return shipment; // If shipment is not found, `null` will be returned
+};
+
+const getShipmentsBySeller = async (sellerId, status = null) => {
+  // Build the query object
+  const query = { senderId: sellerId }; // Fetch shipments by seller's senderId
+  
+  if (status) {
+    query.status = status; // Filter by shipment status if provided
+  }
+
+  try {
+    // Fetch shipments from the database with sorting by createdAt (most recent first)
+    const shipments = await Shipment.find(query)
+      .sort({ createdAt: -1 }); // Sort by creation date (descending order)
+
+    return shipments;
+  } catch (error) {
+    throw new Error('Error fetching shipments from the database');
+  }
+};
+
 module.exports = {
   createShipment,
   updatePaymentStatus,
@@ -68,4 +95,6 @@ module.exports = {
   getDeliveredShipments,
   updateTrackingStatus,
   assignShipmentToCourier,
+  deleteShipmentByTrackingId,
+  getShipmentsBySeller
 };

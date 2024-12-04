@@ -3,6 +3,7 @@ const addressService = require('../services/addressService');
 const recipientService = require('../services/recipientService');
 const logger = require('../config/logger');
 const { createAddressSchema } = require('../validators/addressValidator');
+const sellerService = require('../services/sellerService');
 
 // Add new address or link to existing recipient
 const addAddress = async (req, res) => {
@@ -134,4 +135,155 @@ const deleteAddress = async (req, res) => {
     }
 };
 
-module.exports = { addAddress, getAddressBook, getAddressById, deleteAddress };
+// Add a new address for a seller
+const addAddressToSeller = async (req, res) => {
+  const { sellerId } = req.params;
+  const {
+    district,
+    streetName,
+    buildingNumber,
+    floorNumber,
+    apartmentNumber,
+    closestLandmark,
+    locationLink,
+    latitude,
+    longitude,
+    governorate,
+   } = req.body;
+
+  try {
+    // Check if the seller exists
+    const seller = await sellerService.getSellerById(sellerId);
+    if (!seller) {
+      logger.warn(`Seller with ID ${sellerId} not found`);
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    // Create the new address
+    const addressData = {
+        district,
+        streetName,
+        buildingNumber,
+        floorNumber,
+        apartmentNumber,
+        closestLandmark,
+        locationLink,
+        latitude,
+        longitude,
+        governorate
+    };
+
+    const newAddress = await addressService.addAddress(addressData);
+
+    // Add address to the seller's address list
+    seller.addresses.push(newAddress._id);
+    await seller.save();
+
+    res.status(201).json({ message: "Address added successfully", address: newAddress });
+  } catch (error) {
+    logger.error(`Error adding address: ${error.message}`);
+    res.status(500).json({ message: "Error adding address" });
+  }
+};
+
+// Get all addresses for a seller
+const getSellerAddresses = async (req, res) => {
+  const { sellerId } = req.params;
+  console.log(sellerId, 'seller id')
+
+  try {
+    // Check if the seller exists
+    const seller = await sellerService.getSellerById(sellerId);
+    if (!seller) {
+      logger.warn(`Seller with ID ${sellerId} not found`);
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    // Get all addresses for the seller
+    const addresses = await addressService.getAddressesBySeller(sellerId);
+
+    res.status(200).json({ addresses });
+  } catch (error) {
+    logger.error(`Error retrieving seller's addresses: ${error.message}`);
+    res.status(500).json({ message: "Error retrieving addresses" });
+  }
+};
+
+// Update an address for a seller
+const updateSellerAddress = async (req, res) => {
+    const { sellerId, addressId } = req.params;
+    const { district, streetName, buildingNumber, floorNumber, apartmentNumber, closestLandmark, locationLink, latitude, longitude, governorate } = req.body;
+  
+    try {
+      // Check if the seller exists
+      const seller = await sellerService.getSellerById(sellerId);
+      if (!seller) {
+        logger.warn(`Seller with ID ${sellerId} not found`);
+        return res.status(404).json({ message: "Seller not found" });
+      }
+  
+      // Prepare the address data to be updated based on the fields that are in the request body
+      const addressData = {};
+  
+      if (district) addressData.district = district;
+      if (streetName) addressData.streetName = streetName;
+      if (buildingNumber) addressData.buildingNumber = buildingNumber;
+      if (floorNumber) addressData.floorNumber = floorNumber;
+      if (apartmentNumber) addressData.apartmentNumber = apartmentNumber;
+      if (closestLandmark) addressData.closestLandmark = closestLandmark;
+      if (locationLink) addressData.locationLink = locationLink;
+      if (latitude) addressData.latitude = latitude;
+      if (longitude) addressData.longitude = longitude;
+      if (governorate) addressData.governorate = governorate;
+  
+      // Call the service to update the address
+      const updatedAddress = await addressService.updateAddress(addressId, addressData);
+      if (!updatedAddress) {
+        logger.warn(`Address with ID ${addressId} not found`);
+        return res.status(404).json({ message: "Address not found" });
+      }
+  
+      // Return the response with updated address
+      res.status(200).json({ message: "Address updated successfully", address: updatedAddress });
+    } catch (error) {
+      logger.error(`Error updating address: ${error.message}`);
+      res.status(500).json({ message: "Error updating address" });
+    }
+  };
+  
+
+// Delete an address for a seller
+const deleteSellerAddress = async (req, res) => {
+  const { sellerId, addressId } = req.params;
+
+  try {
+    const seller = await sellerService.getSellerById(sellerId);
+    if (!seller) {
+      logger.warn(`Seller with ID ${sellerId} not found`);
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    // Remove address from the seller's address list
+    seller.addresses = seller.addresses.filter(id => id.toString() !== addressId);
+    await seller.save();
+
+    // Delete the address itself
+    await addressService.deleteAddress(addressId);
+
+    res.status(200).json({ message: "Address deleted successfully" });
+  } catch (error) {
+    logger.error(`Error deleting address: ${error.message}`);
+    res.status(500).json({ message: "Error deleting address" });
+  }
+};
+
+module.exports = {
+  addAddressToSeller,
+  getSellerAddresses,
+  updateSellerAddress,
+  deleteSellerAddress,
+  deleteAddress,
+  getAddressById,
+  getAddressBook,
+  addAddress
+};

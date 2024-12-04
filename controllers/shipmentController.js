@@ -134,6 +134,46 @@ const assignShipmentToCourier = async (req, res) => {
   }
 };
 
+const deleteShipmentByTrackingId = async (req, res) => {
+  const { trackingId } = req.params;
+
+  try {
+    // Call the service function to delete the shipment
+    const shipment = await shipmentService.deleteShipmentByTrackingId(trackingId);
+
+    if (!shipment) {
+      logger.warn(`Shipment with tracking ID ${trackingId} not found.`);
+      return res.status(404).json({ message: "Shipment not found" });
+    }
+
+    logger.info(`Shipment with tracking ID ${trackingId} deleted successfully.`);
+    res.status(200).json({ message: "Shipment deleted successfully" });
+  } catch (error) {
+    logger.error(`Error deleting shipment with tracking ID ${trackingId}: ${error.message}`);
+    res.status(500).json({ message: "Error deleting shipment" });
+  }
+};
+
+const getSellerShipmentHistory = async (req, res) => {
+  const { sellerId } = req.params; // Seller ID from URL
+  const { status } = req.query; // Optional filter for shipment status
+  
+  try {
+    // Validate seller ID (You can also use a middleware to check if seller exists)
+    if (!sellerId) {
+      return res.status(400).json({ message: 'Seller ID is required' });
+    }
+
+    // Fetch the shipment history
+    const shipments = await shipmentService.getShipmentsBySeller(sellerId, status);
+
+    res.status(200).json({ shipments });
+  } catch (error) {
+    logger.error(`Error fetching shipment history for seller ${sellerId}: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching shipment history' });
+  }
+};
+
 module.exports = {
   createShipment,
   updatePaymentStatus,
@@ -144,4 +184,6 @@ module.exports = {
   getDeliveredShipments,
   updateTrackingStatus,
   assignShipmentToCourier,
+  deleteShipmentByTrackingId,
+  getSellerShipmentHistory
 };
