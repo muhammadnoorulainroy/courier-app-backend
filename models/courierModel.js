@@ -1,6 +1,18 @@
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 
+const sessionSchema = new mongoose.Schema(
+  {
+    startTime: { type: Date, required: true },
+    endTime: { type: Date, required: true },
+    duration: {
+      type: Number, // Duration in minutes
+      required: true,
+    },
+  },
+  { _id: false }
+);
+
 const scheduleSchema = new mongoose.Schema(
   {
     governorate: { type: String, required: true },
@@ -108,6 +120,10 @@ const courierSchema = new mongoose.Schema({
   pickUpSchedule: [scheduleSchema],
 
   createdAt: { type: Date, default: Date.now },
+  lastSignIn: { type: Date }, // Timestamp of last login
+  birthdate: { type: Date, required: true },
+  sessions: [sessionSchema], // Array to store session data
+
 });
 
 module.exports = mongoose.model("Courier", courierSchema);

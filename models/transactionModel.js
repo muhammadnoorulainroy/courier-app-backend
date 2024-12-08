@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({
   walletId: {
-    type: mongoose.Schema.Types.ObjectId, 
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Wallet",
     required: true,
   },
@@ -24,6 +24,10 @@ const transactionSchema = new mongoose.Schema({
     enum: ["In", "Out", "Pass-through"],
     required: true,
   },
+  fees: {
+    type: Number,
+    default: 0,
+  },
   reason: {
     type: String,
     required: true,
@@ -41,6 +45,20 @@ const transactionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  penaltyDetails: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Penalty", // Reference to the Penalty Model
+  },
+  shipmentDetails: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Shipment", // Reference to the Shipment Model
+  },
+  promocodeUsed: {
+    type: String, // Yes/No
+  },
+  promoSavings: {
+    type: Number,
+  }
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

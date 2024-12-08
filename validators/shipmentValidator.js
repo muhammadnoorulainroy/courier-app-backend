@@ -8,6 +8,9 @@ const addressSchema = Joi.object({
   apartmentNumber: Joi.string().optional(),
   closestLandmark: Joi.string().optional(),
   locationLink: Joi.string().optional(),
+  latitude: Joi.number().required(),
+  longitude: Joi.number().required(),
+  governorate: Joi.string().required(),
 });
 
 const recipientSchema = Joi.object({
@@ -22,7 +25,8 @@ const recipientSchema = Joi.object({
 });
 
 const createShipmentSchema = Joi.object({
-//   userId: Joi.string().required(),
+  senderId: Joi.string().required(),
+  recipientId: Joi.string().required(),
   type: Joi.string().valid("Piece", "Bulk").required(),
   weight: Joi.number().required(),
   dimensions: Joi.object({
@@ -45,6 +49,8 @@ const createShipmentSchema = Joi.object({
     initialAmount: Joi.number().required(),
     finalAmount: Joi.number().optional(),
   }).required(),
+  needCooling: Joi.boolean().optional(), // New field for parcels requiring cooling
+  isFragile: Joi.boolean().optional(), // New field for fragile parcels
 });
 
 const paymentSchema = Joi.object({

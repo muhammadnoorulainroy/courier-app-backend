@@ -5,7 +5,7 @@ const walletSchema = new mongoose.Schema({
   walletId: {
     type: String,
     default: uuidv4,
-    unique: true
+    unique: true,
   },
   userId: {
     type: String,
@@ -17,9 +17,9 @@ const walletSchema = new mongoose.Schema({
     enum: ["Seller", "Courier", "Recipient"],
     required: function () {
       return this.userId != null;
-    }, // Ensures `userType` is only required if `userId` is provided
+    },
   },
-  phone: {
+  financialPhone: {
     type: String,
     required: [true, "Phone number is required"],
     unique: true,
@@ -38,14 +38,8 @@ const walletSchema = new mongoose.Schema({
   transactions: [
     {
       amount: Number,
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-      type: {
-        type: String,
-        enum: ["withdrawal", "deposit", "debt", "debit"],
-      },
+      date: { type: Date, default: Date.now },
+      type: { type: String, enum: ["withdrawal", "deposit", "debt", "debit"] },
       status: {
         type: String,
         enum: ["pending", "completed", "rejected", "approved"],

@@ -19,6 +19,23 @@ const penaltySchema = new mongoose.Schema({
     enum: ["Manual", "SenderCancellation", "CourierCancellation"],
     required: true,
   },
+  penalizedParty: {
+    type: String,
+    enum: ["Sender", "Courier", "Recipient"],
+    required: true,
+  },
+  penalizedId: {
+    type: String, // ID of the penalized party
+    required: true,
+  },
+  penalizedFirstName: {
+    type: String,
+    required: true,
+  },
+  penalizedLastName: {
+    type: String,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

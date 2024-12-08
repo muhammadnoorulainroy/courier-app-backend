@@ -27,7 +27,10 @@ const getWalletStatement = async (req, res) => {
 
 const createTransaction = async (req, res) => {
   try {
-    const transaction = await transactionService.createTransaction(req.body);
+    const transactionData = req.body;
+
+    // Create the transaction
+    const transaction = await transactionService.createTransaction(transactionData);
     logger.info("Transaction created successfully");
     res.status(201).json({ message: "Transaction created successfully", transaction });
   } catch (error) {
@@ -38,11 +41,14 @@ const createTransaction = async (req, res) => {
 
 const updateTransaction = async (req, res) => {
   try {
-    const transaction = await transactionService.updateTransaction(req.params.id, req.body);
-    if (!transaction) return res.status(404).json({ message: "Transaction not found" });
+    const transactionId = req.params.id;
+    const updateData = req.body;
+
+    const updatedTransaction = await transactionService.updateTransaction(transactionId, updateData);
+    if (!updatedTransaction) return res.status(404).json({ message: "Transaction not found" });
 
     logger.info("Transaction updated successfully");
-    res.status(200).json({ message: "Transaction updated successfully", transaction });
+    res.status(200).json({ message: "Transaction updated successfully", updatedTransaction });
   } catch (error) {
     logger.error(`Error updating transaction: ${error.message}`);
     res.status(500).json({ message: "Error updating transaction" });
@@ -51,8 +57,10 @@ const updateTransaction = async (req, res) => {
 
 const deleteTransaction = async (req, res) => {
   try {
-    const transaction = await transactionService.deleteTransaction(req.params.id);
-    if (!transaction) return res.status(404).json({ message: "Transaction not found" });
+    const transactionId = req.params.id;
+    const deletedTransaction = await transactionService.deleteTransaction(transactionId);
+
+    if (!deletedTransaction) return res.status(404).json({ message: "Transaction not found" });
 
     logger.info("Transaction deleted successfully");
     res.status(200).json({ message: "Transaction deleted successfully" });

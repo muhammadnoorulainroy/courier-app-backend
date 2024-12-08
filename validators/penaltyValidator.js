@@ -9,6 +9,12 @@ const penaltySchema = Joi.object({
   reason: Joi.string()
     .valid("Manual", "SenderCancellation", "CourierCancellation")
     .required(),
+  penalizedParty: Joi.string()
+    .valid("Sender", "Courier", "Recipient")
+    .required(), // Added penalizedParty as per updated model
+  penalizedId: Joi.string().required(), // Added penalizedId as per updated model
+  penalizedFirstName: Joi.string().min(2).max(50).required(), // Added penalizedFirstName as per updated model
+  penalizedLastName: Joi.string().min(2).max(50).required(), // Added penalizedLastName as per updated model
 });
 
 const penaltyConfigSchema = Joi.object({

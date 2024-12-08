@@ -12,9 +12,13 @@ const createAddressSchema = Joi.object({
     apartmentNumber: Joi.string().optional(),
     closestLandmark: Joi.string().optional(),
     locationLink: Joi.string().optional(),
-    latitude: Joi.number().optional(),
-    longitude: Joi.number().optional(),
-    isSaved: Joi.boolean().optional()
+    latitude: Joi.number().required(),  // Make latitude required as per the updated model
+    longitude: Joi.number().required(), // Make longitude required as per the updated model
+    governorate: Joi.string().required(), // Added governorate as per the updated model
+    isSaved: Joi.boolean().optional(),
+    sellerId: Joi.string().required().messages({
+        "any.required": "Seller ID is required."
+      }),
 });
 
 module.exports = { createAddressSchema };

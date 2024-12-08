@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const addressSchema = new mongoose.Schema(
   {
@@ -9,11 +9,12 @@ const addressSchema = new mongoose.Schema(
     apartmentNumber: { type: String },
     closestLandmark: { type: String },
     locationLink: { type: String },
-    latitude: { type: Number },
-    longitude: { type: Number },
-    isSaved: { type: Boolean, default: false },
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true },
+    governorate: { type: String, required: true },
+    sellerId: { type: String, required: true },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Address", addressSchema);
+module.exports = mongoose.model('Address', addressSchema);

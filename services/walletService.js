@@ -60,4 +60,22 @@ const payDebt = async (walletId, amount, receiptPath) => {
   return transaction;
 };
 
-module.exports = { withdrawAmount, getPendingTransactions, payDebt };
+const getWalletBalance = async (financialPhone) => {
+  try {
+    // Find the wallet by financialPhone
+    const wallet = await Wallet.findOne({ financialPhone });
+
+    // If no wallet is found, return null
+    if (!wallet) {
+      return null;
+    }
+
+    // Return the balance of the found wallet
+    return wallet.balance;
+  } catch (error) {
+    throw new Error('Error retrieving wallet balance');
+  }
+};
+
+
+module.exports = { withdrawAmount, getPendingTransactions, payDebt, getWalletBalance };

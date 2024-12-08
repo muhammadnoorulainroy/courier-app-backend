@@ -5,6 +5,16 @@ const getRecipientByPhone = async (phone) => {
   return await Recipient.findOne({ phone });
 };
 
+// Get all recipients associated with a specific addressId
+const getRecipientsByAddressId = async (addressId) => {
+  try {
+      const recipients = await Recipient.find({ addresses: addressId });
+      return recipients;
+  } catch (error) {
+      throw new Error('Error retrieving recipients by addressId');
+  }
+};
+
 const createRecipient = async (recipientData) => {
   const recipient = new Recipient(recipientData);
   return await recipient.save();
@@ -38,4 +48,5 @@ module.exports = {
   createRecipient,
   getAllRecipients,
   deleteRecipient,
+  getRecipientsByAddressId
 };

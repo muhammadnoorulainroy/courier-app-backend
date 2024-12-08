@@ -1,19 +1,19 @@
 const shipmentService = require("../services/shipmentService");
 const logger = require("../config/logger");
 
+// Create a new shipment
 const createShipment = async (req, res) => {
   try {
     const shipment = await shipmentService.createShipment(req.body);
     logger.info("Shipment created successfully");
-    res
-      .status(201)
-      .json({ message: "Shipment created successfully", shipment });
+    res.status(201).json({ message: "Shipment created successfully", shipment });
   } catch (error) {
     logger.error(`Error creating shipment: ${error.message}`);
     res.status(500).json({ message: "Error creating shipment" });
   }
 };
 
+// Update payment status of a shipment
 const updatePaymentStatus = async (req, res) => {
   try {
     const { shipmentId, status } = req.body;
@@ -26,6 +26,7 @@ const updatePaymentStatus = async (req, res) => {
   }
 };
 
+// Get shipment summary (financial details)
 const getShipmentSummary = async (req, res) => {
   try {
     const { shipmentId } = req.params;
@@ -37,6 +38,7 @@ const getShipmentSummary = async (req, res) => {
   }
 };
 
+// Get shipment details by shipment ID
 const getShipment = async (req, res) => {
   try {
     const { shipmentId } = req.params;
@@ -52,6 +54,7 @@ const getShipment = async (req, res) => {
   }
 };
 
+// Get all pending shipments (without assigned courier)
 const getPendingShipments = async (req, res) => {
   try {
     const shipments = await shipmentService.getPendingShipments();
@@ -63,6 +66,7 @@ const getPendingShipments = async (req, res) => {
   }
 };
 
+// Get scheduled shipments for a specific courier
 const getScheduledShipments = async (req, res) => {
   const { courierId } = req.params;
   try {
@@ -75,6 +79,7 @@ const getScheduledShipments = async (req, res) => {
   }
 };
 
+// Get delivered shipments for a specific courier
 const getDeliveredShipments = async (req, res) => {
   const { courierId } = req.params;
   try {
@@ -87,6 +92,7 @@ const getDeliveredShipments = async (req, res) => {
   }
 };
 
+// Update tracking status of a shipment
 const updateTrackingStatus = async (req, res) => {
   const { trackingId } = req.params;
   const { status, location } = req.body;
@@ -107,6 +113,7 @@ const updateTrackingStatus = async (req, res) => {
   }
 };
 
+// Assign shipment to a courier
 const assignShipmentToCourier = async (req, res) => {
   const { trackingId } = req.params;
   const { courierId } = req.body;
@@ -127,6 +134,46 @@ const assignShipmentToCourier = async (req, res) => {
   }
 };
 
+const deleteShipmentByTrackingId = async (req, res) => {
+  const { trackingId } = req.params;
+
+  try {
+    // Call the service function to delete the shipment
+    const shipment = await shipmentService.deleteShipmentByTrackingId(trackingId);
+
+    if (!shipment) {
+      logger.warn(`Shipment with tracking ID ${trackingId} not found.`);
+      return res.status(404).json({ message: "Shipment not found" });
+    }
+
+    logger.info(`Shipment with tracking ID ${trackingId} deleted successfully.`);
+    res.status(200).json({ message: "Shipment deleted successfully" });
+  } catch (error) {
+    logger.error(`Error deleting shipment with tracking ID ${trackingId}: ${error.message}`);
+    res.status(500).json({ message: "Error deleting shipment" });
+  }
+};
+
+const getSellerShipmentHistory = async (req, res) => {
+  const { sellerId } = req.params; // Seller ID from URL
+  const { status } = req.query; // Optional filter for shipment status
+  
+  try {
+    // Validate seller ID (You can also use a middleware to check if seller exists)
+    if (!sellerId) {
+      return res.status(400).json({ message: 'Seller ID is required' });
+    }
+
+    // Fetch the shipment history
+    const shipments = await shipmentService.getShipmentsBySeller(sellerId, status);
+
+    res.status(200).json({ shipments });
+  } catch (error) {
+    logger.error(`Error fetching shipment history for seller ${sellerId}: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching shipment history' });
+  }
+};
+
 module.exports = {
   createShipment,
   updatePaymentStatus,
@@ -137,4 +184,6 @@ module.exports = {
   getDeliveredShipments,
   updateTrackingStatus,
   assignShipmentToCourier,
+  deleteShipmentByTrackingId,
+  getSellerShipmentHistory
 };

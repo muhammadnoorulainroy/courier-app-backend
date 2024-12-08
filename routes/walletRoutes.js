@@ -35,5 +35,6 @@ router.post(
 
 
 router.get("/pending-transactions", walletController.getPendingTransactions);
+router.get('/balance/:financialPhone', walletController.getWalletBalance);
 
 module.exports = router;

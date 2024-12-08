@@ -80,12 +80,12 @@ const getAllAdmins = async () => {
   return await Admin.find();
 };
 
-const updateAdmin = async (adminId, updateData) => {
-  return await Admin.findByIdAndUpdate(adminId, updateData, { new: true });
+const updateAdmin = async (userId, updateData) => {
+  return await Admin.findOneAndUpdate({ userId }, updateData, { new: true });
 };
 
-const deleteAdmin = async (adminId) => {
-  return await Admin.findByIdAndDelete(adminId);
+const deleteAdmin = async (userId) => {
+  return await Admin.findOneAndDelete({ userId });
 };
 
 module.exports = {
