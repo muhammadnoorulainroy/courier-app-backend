@@ -10,24 +10,38 @@ const addAddress = async (addressData) => {
   return savedAddress;
 };
 
-// Get all addresses and populate associated recipients
-const getAddressBook = async () => {
-  // Fetch all addresses
-  const addresses = await Address.find({});
+// Get all addresses for a seller and populate the recipients associated with those addresses
+const getAddressBookBySeller = async (sellerId) => {
+  try {
+    // Find the seller by userId
+    const seller = await Seller.findOne({ userId: sellerId });
+    if (!seller) throw new Error('Seller not found');
 
-  // Populate recipients who have these addresses
-  const addressWithRecipients = await Promise.all(
-    addresses.map(async (address) => {
-      const recipients = await Recipient.find({ addresses: address._id });
+    // Find all addresses associated with the seller
+    const addresses = await Address.find({ sellerId });
 
-      return {
-        address,
-        recipients,  // Now returning the recipients for each address
-      };
-    })
-  );
+    // If no addresses are found for the seller
+    if (!addresses || addresses.length === 0) {
+      throw new Error('No addresses found for this seller');
+    }
 
-  return addressWithRecipients;
+    // Now, populate each address with associated recipients
+    const addressWithRecipients = await Promise.all(
+      addresses.map(async (address) => {
+        // Find all recipients associated with this address
+        const associatedRecipients = await Recipient.find({ addresses: address._id });
+
+        return {
+          address,
+          recipients: associatedRecipients,
+        };
+      })
+    );
+
+    return addressWithRecipients;
+  } catch (error) {
+    throw new Error(`Error fetching address book: ${error.message}`);
+  }
 };
 
 // Get a specific address by its ID and populate associated recipients
@@ -90,7 +104,7 @@ const updateAddress = async (addressId, addressData) => {
 
 module.exports = {
   addAddress,
-  getAddressBook,
+  getAddressBookBySeller,
   getAddressById,
   deleteAddress,
   getAddressesBySeller,

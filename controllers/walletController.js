@@ -68,10 +68,33 @@ const payDebt = async (req, res) => {
   }
 };
 
+// Controller to get wallet balance by financialPhone
+const getWalletBalance = async (req, res) => {
+  const { financialPhone } = req.params;
+
+  try {
+    // Get the wallet balance using the financialPhone
+    const balance = await walletService.getWalletBalance(financialPhone);
+
+    if (balance === null) {
+      logger.warn(`Wallet with phone ${financialPhone} not found`);
+      return res.status(404).json({ message: 'Wallet not found' });
+    }
+
+    // Return the wallet balance
+    res.status(200).json({ balance });
+  } catch (error) {
+    logger.error(`Error fetching wallet balance: ${error.message}`);
+    res.status(500).json({ message: 'Error fetching wallet balance' });
+  }
+};
+
+
 module.exports = {
   requestOtp,
   verifyOtp,
   withdrawAmount,
   getPendingTransactions,
   payDebt,
+  getWalletBalance
 };

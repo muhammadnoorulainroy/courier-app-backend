@@ -15,7 +15,10 @@ const createAddressSchema = Joi.object({
     latitude: Joi.number().required(),  // Make latitude required as per the updated model
     longitude: Joi.number().required(), // Make longitude required as per the updated model
     governorate: Joi.string().required(), // Added governorate as per the updated model
-    isSaved: Joi.boolean().optional()
+    isSaved: Joi.boolean().optional(),
+    sellerId: Joi.string().required().messages({
+        "any.required": "Seller ID is required."
+      }),
 });
 
 module.exports = { createAddressSchema };

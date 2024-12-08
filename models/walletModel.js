@@ -19,7 +19,7 @@ const walletSchema = new mongoose.Schema({
       return this.userId != null;
     },
   },
-  phone: {
+  financialPhone: {
     type: String,
     required: [true, "Phone number is required"],
     unique: true,

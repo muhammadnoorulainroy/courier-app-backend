@@ -5,8 +5,8 @@ const validateRequest = require('../middlewares/validateRequest');
 const { createAddressSchema } = require('../validators/addressValidator');
 
 router.post('/add', validateRequest(createAddressSchema), addressController.addAddress);
-router.get('/book', addressController.getAddressBook);
 router.get('/:id', addressController.getAddressById);
 router.delete('/:id', addressController.deleteAddress);
+router.get('/book/:sellerId', addressController.getAddressBook);
 
 module.exports = router;
