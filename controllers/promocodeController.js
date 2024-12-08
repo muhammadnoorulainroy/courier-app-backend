@@ -1,4 +1,4 @@
-const promoCodeService = require("../services/promoCodeService");
+const promoCodeService = require("../services/promocodeService");
 const logger = require("../config/logger");
 const { promoCodeSchema } = require("../validators/promoCodeValidator");
 
