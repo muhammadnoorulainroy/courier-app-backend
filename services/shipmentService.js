@@ -1,4 +1,7 @@
 const Shipment = require("../models/shipmentModel");
+const Recipient = require("../models/recipientModel");
+const Seller = require("../models/sellerModel");
+const Courier = require("../models/courierModel");
 
 // Create a new shipment
 const createShipment = async (shipmentData) => {
@@ -18,27 +21,6 @@ const updatePaymentStatus = async (shipmentId, status) => {
 // Get shipment summary (financial details like total cost, discount, taxes)
 const getShipmentSummary = async (shipmentId) => {
   return await Shipment.findById(shipmentId, "summary");
-};
-
-// Get shipment details by shipment ID
-const getShipmentById = async (shipmentId) => {
-  return await Shipment.findById(shipmentId);
-};
-
-// Get all pending shipments (without assigned courier)
-const getPendingShipments = async () => {
-  return await Shipment.find({ status: "Created", courierId: null })
-    .sort({ createdAt: -1 }); // Sorting by createdAt in descending order
-};
-
-// Get scheduled shipments for a specific courier
-const getScheduledShipments = async (courierId) => {
-  return await Shipment.find({ courierId, status: { $in: ["Scheduled", "In Transit"] } });
-};
-
-// Get delivered shipments for a specific courier
-const getDeliveredShipments = async (courierId) => {
-  return await Shipment.find({ courierId, status: "Delivered" });
 };
 
 // Update tracking status for a shipment
@@ -66,24 +48,66 @@ const deleteShipmentByTrackingId = async (trackingId) => {
   return shipment; // If shipment is not found, `null` will be returned
 };
 
-const getShipmentsBySeller = async (sellerId, status = null) => {
-  // Build the query object
-  const query = { senderId: sellerId }; // Fetch shipments by seller's senderId
-  
-  if (status) {
-    query.status = status; // Filter by shipment status if provided
-  }
+// Helper to fetch associated details by UUID
+const populateShipmentDetails = async (shipment) => {
+  const recipient = await Recipient.findOne({ userId: shipment.recipientId });
+  const sender = await Seller.findOne({ userId: shipment.senderId });
+  const courier = shipment.courierId
+    ? await Courier.findOne({ userId: shipment.courierId })
+    : null;
 
-  try {
-    // Fetch shipments from the database with sorting by createdAt (most recent first)
-    const shipments = await Shipment.find(query)
-      .sort({ createdAt: -1 }); // Sort by creation date (descending order)
-
-    return shipments;
-  } catch (error) {
-    throw new Error('Error fetching shipments from the database');
-  }
+  return {
+    ...shipment.toObject(),
+    recipient,
+    sender,
+    courier,
+  };
 };
+
+// Get shipment details by shipment ID with recipient, seller, and courier details
+const getShipmentById = async (shipmentId) => {
+  const shipment = await Shipment.findById(shipmentId);
+  if (!shipment) return null;
+
+  return await populateShipmentDetails(shipment);
+};
+
+// Get all pending shipments with recipient, seller, and courier details
+const getPendingShipments = async () => {
+  const shipments = await Shipment.find({ status: "Created", courierId: null }).sort({
+    createdAt: -1,
+  });
+
+  return await Promise.all(shipments.map((shipment) => populateShipmentDetails(shipment)));
+};
+
+// Get scheduled shipments for a specific courier with full details
+const getScheduledShipments = async (courierId) => {
+  const shipments = await Shipment.find({
+    courierId,
+    status: { $in: ["Scheduled", "In Transit"] },
+  });
+
+  return await Promise.all(shipments.map((shipment) => populateShipmentDetails(shipment)));
+};
+
+// Get delivered shipments for a specific courier with full details
+const getDeliveredShipments = async (courierId) => {
+  const shipments = await Shipment.find({ courierId, status: "Delivered" });
+
+  return await Promise.all(shipments.map((shipment) => populateShipmentDetails(shipment)));
+};
+
+// Get shipments for a seller with full details
+const getShipmentsBySeller = async (sellerId, status = null) => {
+  const query = { senderId: sellerId };
+  if (status) query.status = status;
+
+  const shipments = await Shipment.find(query).sort({ createdAt: -1 });
+
+  return await Promise.all(shipments.map((shipment) => populateShipmentDetails(shipment)));
+};
+
 
 module.exports = {
   createShipment,
