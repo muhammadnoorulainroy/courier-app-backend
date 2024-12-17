@@ -38,24 +38,24 @@ const createShipmentSchema = Joi.object({
     date: Joi.date().required(),
     time: Joi.string().required(),
     location: addressSchema,
-  }).required(),
+  }).optional(),
   dropOffDetails: Joi.object({
     date: Joi.date().required(),
     time: Joi.string().required(),
     recipient: recipientSchema.required(),
     location: addressSchema,
-  }).required(),
+  }).optional(),
   paymentDetails: Joi.object({
     initialAmount: Joi.number().required(),
     finalAmount: Joi.number().optional(),
-  }).required(),
+  }).optional(),
   needCooling: Joi.boolean().optional(), // New field for parcels requiring cooling
   isFragile: Joi.boolean().optional(), // New field for fragile parcels
 });
 
 const paymentSchema = Joi.object({
   shipmentId: Joi.string().required(),
-  status: Joi.string().valid("Pending", "Completed").required(),
+  status: Joi.string().valid("Pending", "Completed").optional(),
 });
 
 module.exports = { createShipmentSchema, paymentSchema };
